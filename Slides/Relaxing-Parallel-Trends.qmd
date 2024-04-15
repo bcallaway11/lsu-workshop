@@ -1,0 +1,871 @@
+---
+title: "Modern Approaches to Difference-in-Differences"
+subtitle: "Session 2: Relaxing Parallel Trends"
+format: clean-revealjs
+author:
+  - name: Brantly Callaway
+    email: brantly.callaway@uga.edu
+    affiliations: University of Georgia
+knitr:
+  opts_chunk:
+    echo: true
+---
+
+```{r echo=FALSE}
+library(revealEquations)
+```
+
+## Covariates in the Parallel Trends Assumption
+
+Including covariates in the parallel trends assumption can often make DID identification strategies more plausible:
+
+. . .
+
+[Example]{.alert-blue}
+
+* [Minimum wage example:]{.alert} path of teen employment may depend on a state's population / population growth / region of the country
+
+* [Job displacement example:]{.alert} path of earnings may depend on year's of education / race / occupation
+
+. . .
+
+However, there are a number of new issues that can arise in this setting...
+
+$\newcommand{\E}{\mathbb{E}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\var}{\mathrm{var}}
+\newcommand{\cov}{\mathrm{cov}}
+\newcommand{\Var}{\mathrm{var}}
+\newcommand{\Cov}{\mathrm{cov}}
+\newcommand{\Corr}{\mathrm{corr}}
+\newcommand{\corr}{\mathrm{corr}}
+\newcommand{\L}{\mathrm{L}}
+\renewcommand{\P}{\mathrm{P}}
+\newcommand{\independent}{{\perp\!\!\!\perp}}
+\newcommand{\indicator}[1]{ \mathbf{1}\{#1\} }$
+
+
+## Outline
+
+<br>
+
+
+1. Limitations of TWFE Regression
+
+2. Identification with Two Periods
+
+3. Alternative Estimation Strategies
+
+4. Multiple Periods
+
+5. Minimum Wage Application
+
+6. Dealing with "Bad" Controls
+
+## Notation
+
+Start with the case with only two time periods
+
+Only need a little bit of new notation here:
+
+* $X_{i,t=2}$ and $X_{i,t=1}$ &mdash; time-varying covariates
+
+* $Z_i$ &mdash; time-invariant covariates
+
+## Covariates in the Parallel Trends Assumption
+
+<br>
+
+::: {.callout-note}
+
+### Conditional Parallel Trends Assumption
+
+
+$$\E[\Delta Y_i(0) | X_{i,t=2}, X_{i,t=1},Z_i,D_i=1] = \E[\Delta Y_i(0) | X_{i,t=2}, X_{i,t=1},Z_i,D_i=0]$$
+:::
+
+::: {.fragment}
+
+In words: Parallel trends holds conditional on having the same covariates $(X_{i,t=2},X_{i,t=1},Z_i)$.
+
+:::
+
+::: {.fragment}
+
+[Minimum wage example]{.alert} (e.g.) Parallel trends conditional on counties have the same population (like $X_{i,t}$) and being in the same region of the country (like $Z_i$)
+
+:::
+
+# Limitations of TWFE Regressions {visibility="uncounted"}
+
+## Limitations of TWFE Regressions
+
+In this setting, it is common to run the following TWFE regression:
+
+$$Y_{i,t} = \theta_t + \eta_i + \alpha D_{i,t} + X_{i,t}'\beta + e_{i,t}$$
+
+::: {.fragment}
+
+However, there are a number of issues: <!--(most of these apply even in the friendly setting with two periods)-->
+
+Issue 1: Issues related to multiple periods and variation in treatment timing still arise
+
+:::
+
+::: {.fragment}
+
+
+Issue 2: Hard to allow parallel trends to depend on time-invariant covariates
+
+:::
+
+::: {.fragment}
+
+
+Issue 3: Hard to allow for covariates that could be affected by the treatment
+
+:::
+
+## Limitations of TWFE Regressions
+
+In this setting, it is common to run the following TWFE regression:
+
+$$Y_{i,t} = \theta_t + \eta_i + \alpha D_{i,t} + X_{i,t}'\beta + e_{i,t}$$
+
+
+However, there are a number of issues: <!--(most of these apply even in the friendly setting with two periods)-->
+
+Issue 4: Linearity results in mixing identification and estimation...e.g., with 2 periods
+\begin{align*}
+\Delta Y_{i,t} = \Delta \theta_t + \alpha D_{i,t} + \Delta X_{i,t}'\beta + \Delta e_{i,t}
+\end{align*}
+$\implies$ differencing out unit fixed effects can have implications about what researcher controls for
+
+* This doesn't matter if model for untreated potential outcomes is truly linear
+
+* However, if we think of linear model as an approximation, this may have meaningful implications.
+
+
+
+## Limitations of TWFE Regressions
+
+Even if none of the previous 4 issues apply, $\alpha$ will still be equal to a weighted average of underlying (conditional-on-covariates) treatment effect parameters.
+
+  * The weights can be negative, and suffer from "weight reversal" (similar to the issue discussed in Sloczynski (2020) in the context of cross-sectional regressions with covaraites)
+  
+  * In other words, weights $\alpha$ is a weighted average of $ATT(X)$ where (relative to a baseline of weighting based on the distribution of $X$ for the treated group), the weights put larger weight on $ATT(X)$ for values of the covariates that are *uncommon* for the treated group relative to the untreated group and smaller weight on $ATT(X)$ for values of the covariates that are *common* for the treated group relative to the untreated group
+    
+See Caetano and Callaway (2023) for more details
+
+
+
+```{r echo=FALSE, results="asis"}
+
+title <- "Identification under Conditional Parallel Trends"
+
+before <- "Under conditional parallel trends, we have that"
+
+eqlist <- list("ATT &= \\E[\\Delta Y_i | D_i=1] - \\E[\\Delta Y_i(0) | D_i=1] \\hspace{150pt}",
+               "&=\\E[\\Delta Y_i | D_i=1] - \\E\\Big[ \\E[\\Delta Y_i(0) | X_i, D_i=1] \\Big| D_i=1\\Big]",
+               "&= \\E[\\Delta Y_i | D_i=1] - \\E\\Big[ \\underbrace{\\E[\\Delta Y_i(0) | X_i, D_i=0]}_{=:m_0(X_i)} \\Big| D_i=1\\Big]")
+
+
+after <- "
+
+. . .
+
+Intuition: (i) Compare path of outcomes for treated group to (conditional on covariates) path of outcomes for untreated group, (ii) adjust for differences in the distribution of covariates between groups.
+
+. . .
+
+This argument also require an [overlap condition]{.alert}
+
+* For all possible values of the covariates, $p(x) := \\P(D_i=1|X_i=x) < 1$.
+
+* In words: for all treated units, we can find untreated units that have the same characteristics
+
+. . .
+
+There are several possible ways to turn this identification result into an estimation strategy $\\rightarrow$
+
+"
+
+step_by_step_eq(eqlist, before, after, title)
+```
+
+## Regression Adjustment
+
+The challenging term to deal with in the previous expression for $ATT$ is
+
+$$\E\Big[ \underbrace{\E[\Delta Y_i(0) | X_i, D_i=0]}_{=:m_0(X_i)} \Big| D_i=1\Big]$$
+
+The most direct way to proceed is by proposing a model for $m_0(X_i)$.
+
+This expression suggests a [regression adjustment]{.alert} estimator.  For example, if we assume that $m_0(X_i) = X_i'\beta_0$, then we have that
+
+$$ATT = \E[\Delta Y_i | D_i=1] - \E[X_i'|D_i=1]\beta_0$$
+
+. . .
+
+and we can estimate the $ATT$ by
+
+* Step 1: Estimate $\beta_0$ using untreated group
+
+* Step 2: Combine this estimate with estimates of $\E[\Delta Y_{i,t} | D_i=1]$ and $\E[X_i'|D_i=1]$ (using treated group) to estimate $ATT$
+
+## Covariate Balancing
+
+Alternatively, if we could choose [balancing weights]{.alert} $\nu_0(X_i)$ such that the distribution of $X_i$ was the same in the untreated group as it is in the treated group after applying the balancing weights, then we would have that (from the second term above)
+\begin{align*}
+  \E\Big[ \E[\Delta Y_i(0) | X_i, D_i=0 ] \Big| D_i=1\Big] &= \E\Big[ \nu_0(X_i) \E[\Delta Y_i(0) | X_i, D_i=0 ] \Big| D_i=0\Big] \\
+  &= \E[\nu_0(X_i) \Delta Y_i(0) | D_i=0]
+\end{align*}
+where the first equality is due to balancing weights and the second by the law of iterated expectations.
+
+::: {.fragment}
+
+The most common way to re-weight is based on the propensity score, you can show:
+\begin{align*}
+  \nu_0(x) = \frac{p(x)(1-p)}{(1-p(x))p}
+\end{align*}
+where $p(x) = \P(D_i=1|X_i=x)$ and $p=\P(D_i=1)$.  
+
+:::
+
+::: {.fragment}
+
+
+This is the approach suggested in Abadie (2005).  In practice, you need to estimate the propensity score.  The most common choices are probit or logit.
+
+:::
+
+## Doubly Robust
+
+Alternatively, you can show
+
+$$ATT=\E\left[ \left( \frac{D_i}{p} - \frac{p(X_i)(1-D_i)}{(1-p(X_i))p} \right)(\Delta Y_{i,t} - \E[\Delta Y_{i,t} | X_i, D_i=0]) \right]$$
+
+::: {.fragment}
+
+This requires estimating both $p(X_i)$ and $\E[\Delta Y_i|X_i,D_i=0]$.
+
+:::
+
+::: {.fragment}
+
+
+Big advantage:
+
+- This expression for $ATT$ is *doubly robust*.  This means that, it will deliver consistent estimates of $ATT$ if <span class="alert">either</span> the model for $p(X_i)$ or for $\E[\Delta Y_i|X_i,D_i=0]$.
+
+:::
+
+::: {.fragment}
+
+
+- In my experience, doubly robust estimators perform much better than either the regression or propensity score weighting estimators
+
+:::
+
+::: {.fragment}
+
+
+- This also provides a connection to estimating $ATT$ under conditional parallel trends using machine learning for $p(X_i)$ and $\E[\Delta Y_i|X_i,D_i=0]$ (see: Chang (2020) and Callaway, Drukker, Liu, and Sant'Anna (2023))
+
+:::
+
+::: {.fragment}
+
+[More Details](Relaxing-Parallel-Trends.html#/understanding-double-robustness)
+
+:::
+
+## Multiple Time Periods and Variation in Treatment Timing
+
+<br>
+
+::: {.callout-note} 
+### Conditional Parallel Trends with Multiple Periods
+
+For all groups $g \in \bar{\mathcal{G}}$ (all groups except the never-treated group) and for all time periods $t=2, \ldots, T$, 
+
+$$\E[\Delta Y_{i,t}(0) | \mathbf{X}_i, Z_i, G_i=g] = \E[\Delta Y_{i,t}(0) | \mathbf{X}_i, Z_i, U_i=1]$$
+
+where $\mathbf{X}_i := (X_{i,1},X_{i,2},\ldots,X_{i,T})$.
+:::
+
+Under this assumption, using similar arguments to the ones above, one can show that
+
+$$ATT(g,t) = \E\left[ \left( \frac{\indicator{G_i=g}}{p_g} - \frac{p_g(\mathbf{X}_i,Z_i)U_i}{(1-p_g(\mathbf{X}_i,Z_i))p_g}\right)\Big(Y_{i,t} - Y_{i,g-1} - m_{gt}^0(\mathbf{X}_i,Z_i)\Big) \right]$$
+
+where $p_g(\mathbf{X}_i,Z_i) := \P(G_i=g|\mathbf{X}_i,Z_i,\indicator{G_i=g}+U_i=1)$ and $m_{gt}^0(\mathbf{X}_i,Z_i) := \E[Y_{i,t}-Y_{i,g-1}|\mathbf{X}_i,Z_i,U_i=1]$.
+
+## Practical Considerations
+
+Because $\mathbf{X}_i$ contains $X_{i,t}$ for all time periods, terms like $m_{gt}^0(\mathbf{X}_i,Z_i)$ can be quite high-dimensional (and hard to estimate) in many applications.  In many cases, it may be reasonable to replace with lower dimensional function $\mathbf{X}_i$:
+
+. . .
+
+* $\bar{X}_i$ &mdash; the average of $X_{i,t}$ across time periods
+* $X_{i,t}, X_{i,g-1}$ &mdash; the covariates in the current period and base period (this is possible in the `pte` package currently and may be added to `did` soon).
+* $X_{i,g-1}$ &mdash; the covariates in the base period (this is the default in `did`)
+* $(X_{i,t}-X_{i,g-1})$ &mdash; the change in covariates over time
+
+
+# Empirical Example {visibility="uncounted"}
+
+::: {.notes}
+
+* walk through a bunch of examples
+
+* including covariates in the parallel trend assumtpion, compare to regression
+
+* regression adjustment, ipw, doubly robust
+
+* change base period
+
+* change comparison group
+
+* allow for anticipation
+
+:::
+
+
+## Back to Minimum Wage Example
+
+We'll allow for path of outcomes to depend on region of the country
+
+```{r echo=FALSE}
+library(did)
+library(BMisc)
+library(twfeweights)
+library(fixest)
+library(modelsummary)
+library(ggplot2)
+load("data2.RData")
+```
+
+```{r}
+# run TWFE regression
+twfe_x <- fixest::feols(lemp ~ post | id + region^year,
+                        data=data2)
+modelsummary(twfe_x, gof_omit=".*")
+```
+
+Relative to previous results, this is much smaller and statistically insignificant and is similar to the result in Dube et al. (2010).
+
+
+
+## Callaway and Sant'Anna (2021) Results
+
+
+```{r eval=FALSE}
+#| code-line-numbers: "|6"
+# callaway and sant'anna including covariates
+cs_x <- att_gt(yname="lemp",
+               tname="year",
+               idname="id",
+               gname="G",
+               xformla=~region,
+               control_group="nevertreated",
+               base_period="universal",
+               data=data2)
+cs_x_res <- aggte(cs_x, type="group")
+summary(cs_x_res)
+cs_x_dyn <- aggte(cs_x, type="dynamic")
+ggdid(cs_x_dyn)
+```
+
+
+
+## Callaway and Sant'Anna (2021) Results
+
+```{r echo=FALSE}
+cs_x <- att_gt(yname="lemp",
+               tname="year",
+               idname="id",
+               gname="G",
+               xformla=~region,
+               control_group="nevertreated",
+               base_period="universal",
+               data=data2)
+cs_x_res <- aggte(cs_x, type="group")
+summary(cs_x_res)
+```
+
+## Callaway and Sant'Anna (2021) Results
+
+```{r echo=FALSE}
+cs_x_dyn <- aggte(cs_x, type="dynamic")
+ggdid(cs_x_dyn)
+```
+
+## Comments
+
+Even more than in the previous case, the results in this case are notably different depending on the estimation strategy.
+
+## Add Covariates
+
+```{r}
+# run TWFE regression
+twfe_x <- fixest::feols(lemp ~ post + lpop + lavg_pay | id + region^year,
+                        data=data2)
+modelsummary(twfe_x, gof_omit=".*")
+```
+
+
+## Regression Adjustment
+
+
+```{r eval=FALSE}
+#| code-line-numbers: "|6|9"
+# callaway and sant'anna including covariates
+cs_x <- att_gt(yname="lemp",
+               tname="year",
+               idname="id",
+               gname="G",
+               xformla=~region + lpop + lavg_pay,
+               control_group="nevertreated",
+               base_period="universal",
+               est_method="reg",
+               data=data2)
+cs_x_res <- aggte(cs_x, type="group")
+summary(cs_x_res)
+cs_x_dyn <- aggte(cs_x, type="dynamic")
+ggdid(cs_x_dyn)
+```
+
+
+
+## Regression Adjustment
+
+```{r echo=FALSE}
+cs_x <- att_gt(yname="lemp",
+               tname="year",
+               idname="id",
+               gname="G",
+               xformla=~region + lpop + lavg_pay,
+               control_group="nevertreated",
+               base_period="universal",
+               est_method="reg",
+               data=data2)
+cs_x_res <- aggte(cs_x, type="group")
+summary(cs_x_res)
+```
+
+## Regression Adjustment
+
+```{r echo=FALSE}
+cs_x_dyn <- aggte(cs_x, type="dynamic")
+ggdid(cs_x_dyn)
+```
+
+## Inverse Propensity Score Weighting
+
+```{r eval=FALSE}
+#| code-line-numbers: "|9"
+# callaway and sant'anna including covariates
+cs_x <- att_gt(yname="lemp",
+               tname="year",
+               idname="id",
+               gname="G",
+               xformla=~region + lpop + lavg_pay,
+               control_group="nevertreated",
+               base_period="universal",
+               est_method="ipw",
+               data=data2)
+cs_x_res <- aggte(cs_x, type="group")
+summary(cs_x_res)
+cs_x_dyn <- aggte(cs_x, type="dynamic")
+ggdid(cs_x_dyn)
+```
+
+
+
+## Inverse Propensity Score Weighting
+
+```{r echo=FALSE}
+cs_x <- att_gt(yname="lemp",
+               tname="year",
+               idname="id",
+               gname="G",
+               xformla=~region + lpop + lavg_pay,
+               control_group="nevertreated",
+               base_period="universal",
+               est_method="ipw",
+               data=data2)
+cs_x_res <- aggte(cs_x, type="group")
+summary(cs_x_res)
+```
+
+## Inverse Propensity Score Weighting
+
+```{r echo=FALSE}
+cs_x_dyn <- aggte(cs_x, type="dynamic")
+ggdid(cs_x_dyn)
+```
+
+
+## Doubly Robust
+
+```{r eval=FALSE}
+#| code-line-numbers: "|9"
+# callaway and sant'anna including covariates
+cs_x <- att_gt(yname="lemp",
+               tname="year",
+               idname="id",
+               gname="G",
+               xformla=~region + lpop + lavg_pay,
+               control_group="nevertreated",
+               base_period="universal",
+               est_method="dr",
+               data=data2)
+cs_x_res <- aggte(cs_x, type="group")
+summary(cs_x_res)
+cs_x_dyn <- aggte(cs_x, type="dynamic")
+ggdid(cs_x_dyn)
+```
+
+
+
+## Doubly Robust
+
+```{r echo=FALSE}
+cs_x <- att_gt(yname="lemp",
+               tname="year",
+               idname="id",
+               gname="G",
+               xformla=~region + lpop + lavg_pay,
+               control_group="nevertreated",
+               base_period="universal",
+               est_method="dr",
+               data=data2)
+cs_x_res <- aggte(cs_x, type="group")
+summary(cs_x_res)
+```
+
+## Doubly Robust
+
+```{r echo=FALSE}
+cs_x_dyn <- aggte(cs_x, type="dynamic")
+ggdid(cs_x_dyn)
+```
+
+## Change base period
+
+```{r eval=FALSE}
+#| code-line-numbers: "|8"
+# callaway and sant'anna including covariates
+cs_x <- att_gt(yname="lemp",
+               tname="year",
+               idname="id",
+               gname="G",
+               xformla=~region + lpop + lavg_pay,
+               control_group="nevertreated",
+               base_period="varying",
+               est_method="dr",
+               data=data2)
+cs_x_res <- aggte(cs_x, type="group")
+summary(cs_x_res)
+cs_x_dyn <- aggte(cs_x, type="dynamic")
+ggdid(cs_x_dyn)
+```
+
+
+
+## Change base period
+
+```{r echo=FALSE}
+cs_x <- att_gt(yname="lemp",
+               tname="year",
+               idname="id",
+               gname="G",
+               xformla=~region + lpop + lavg_pay,
+               control_group="nevertreated",
+               base_period="varying",
+               est_method="dr",
+               data=data2)
+cs_x_res <- aggte(cs_x, type="group")
+summary(cs_x_res)
+```
+
+## Change base period
+
+```{r echo=FALSE}
+cs_x_dyn <- aggte(cs_x, type="dynamic")
+ggdid(cs_x_dyn)
+```
+
+## Change comparison group
+
+```{r eval=FALSE}
+#| code-line-numbers: "|7"
+# callaway and sant'anna including covariates
+cs_x <- att_gt(yname="lemp",
+               tname="year",
+               idname="id",
+               gname="G",
+               xformla=~region + lpop + lavg_pay,
+               control_group="notyettreated",
+               base_period="universal",
+               est_method="dr",
+               data=data2)
+cs_x_res <- aggte(cs_x, type="group")
+summary(cs_x_res)
+cs_x_dyn <- aggte(cs_x, type="dynamic")
+ggdid(cs_x_dyn)
+```
+
+
+
+## Change comparison group
+
+```{r echo=FALSE}
+cs_x <- att_gt(yname="lemp",
+               tname="year",
+               idname="id",
+               gname="G",
+               xformla=~region + lpop + lavg_pay,
+               control_group="notyettreated",
+               base_period="universal",
+               est_method="dr",
+               data=data2)
+cs_x_res <- aggte(cs_x, type="group")
+summary(cs_x_res)
+```
+
+## Change comparison group
+
+```{r echo=FALSE}
+cs_x_dyn <- aggte(cs_x, type="dynamic")
+ggdid(cs_x_dyn)
+```
+
+## Allow for anticipation
+
+```{r eval=FALSE}
+#| code-line-numbers: "|10"
+# callaway and sant'anna including covariates
+cs_x <- att_gt(yname="lemp",
+               tname="year",
+               idname="id",
+               gname="G",
+               xformla=~region + lpop + lavg_pay,
+               control_group="nevertreated",
+               base_period="universal",
+               est_method="dr",
+               anticipation=1,
+               data=data2)
+cs_x_res <- aggte(cs_x, type="group")
+summary(cs_x_res)
+cs_x_dyn <- aggte(cs_x, type="dynamic")
+ggdid(cs_x_dyn)
+```
+
+
+
+## Allow for anticipation
+
+```{r echo=FALSE}
+cs_x <- att_gt(yname="lemp",
+               tname="year",
+               idname="id",
+               gname="G",
+               xformla=~region + lpop + lavg_pay,
+               control_group="nevertreated",
+               base_period="universal",
+               est_method="dr",
+               anticipation=1,
+               data=data2)
+cs_x_res <- aggte(cs_x, type="group")
+summary(cs_x_res)
+```
+
+## Allow for anticipation
+
+```{r echo=FALSE}
+cs_x_dyn <- aggte(cs_x, type="dynamic")
+ggdid(cs_x_dyn)
+```
+
+# Covariates Affected by the Treatment {visibility="uncounted"}
+
+## Motivation
+
+So far, our discussion has been for the case where the time-varying covariates [evolve exogenously]{.alert}.
+
+* Many (probably most) covariates fit into this category: in the minimum wage example, a county's population probably fits here.
+
+But in other cases, there can exist covariates that we would like to include in the parallel trends assumption that could be affected by the treatment (this type of covariate is often referred to as a [bad control]{.alert}.
+
+* Example: Job displacement
+  * Path of earnings (in the absence of job displacement) likely depends on occupation, industry, and/or union status, which could all be affected by job displacement
+
+The traditional approach in empirical work is to completely drop covariates that could have been affected by the treatment.
+
+* Not clear if this is the right idea though...
+
+## Additional Notation
+
+To wrap our heads around this, let's go back to the case with two time periods.  
+
+Define treated and untreated [potential covariates]{.alert}: $X_{i,t}(1)$ and $X_{i,t}(0)$.  Notice that in the "textbook" two period setting, we observe
+$$X_{i,t=2} = D_i X_{i,t=2}(1) + (1-D_i) X_{i,t=2}(0) \qquad \textrm{and} \qquad X_{i,t=1} = X_{i,t=1}(0)$$
+
+If the covariates are literally not affected by the treatment at all, then we can write the version of conditional parallel trends that we have been using above in terms of potential outcomes:
+
+<br>
+
+::: {.callout-note} 
+### Conditional Parallel Trends using Untreated Potential Covariates
+
+$$\E[\Delta Y_i(0) | X_{i,t=2}(0), X_{i,t=1}(0), Z_i, D_i=1] = \E[\Delta Y_i(0) | X_{i,t=2}(0), X_{i,t=1}(0), Z_i, D_i=0]$$
+:::
+
+<br>
+
+## Option 1: Ignore
+
+One idea is to just ignore that the covariates may have been affected by the treatment:
+
+<br>
+
+::: {.callout-note} 
+
+### Alternative Conditional Parallel Trends 1
+
+$$\E[\Delta Y_i(0) | { \color{red} X_{\color{red}{i,t=2} } }, X_{i,t=1}(0), Z_i, D_i=1] = \E[\Delta Y_i(0) |  { \color{red} X_{\color{red}{i,t=2}} }, X_{i,t=1}(0), Z_i, D_i=0]$$
+:::
+
+<br>
+
+The limitations of this approach are well known (even discussed in MHE), and this is not typically the approach taken in empirical work
+
+. . .
+
+[Job Displacement Example:]{.alert-blue} You would compare paths of outcomes for workers who left union [because they were displaced]{.alert} to paths of outcomes for non-displaced workers who also left union (e.g., [because of better non-unionized job opportunity]{.alert})
+
+## Option 2: Drop
+
+It is more common in empirical work to drop $X_{i,t}(0)$ entirely from the parallel trends assumption
+
+<br>
+
+::: {.callout-note} 
+
+### Alternative Conditional Parallel Trends 2
+
+$$\E[\Delta Y_i(0) | Z_i, D_i=1] = \E[\Delta Y_i(0) |  Z_i, D_i=0]$$
+:::
+
+<br>
+
+In my view, this is not attractive either though.  If we believe this assumption, then we have basically solved the bad control problem by assuming that it does not exist.
+
+. . .
+
+[Job Displacement Example:]{.alert-blue} We have now just assumed that path of earnings (absent job displacement) doesn't depend on union status
+
+## Option 3: Tweak
+
+Perhaps a better alternative identifying assumption is the following one
+
+<br>
+
+::: {.callout-note} 
+
+### Alternative Conditional Parallel Trends 3
+
+$$\E[\Delta Y_i(0) | X_{i,t=1}(0), Z_i, D_i=1] = \E[\Delta Y_i(0) |  X_{i,t=1}(0), Z_i, D_i=0]$$
+:::
+
+<br>
+
+. . .
+
+[Intuition:]{.alert} Conditional parallel trends holds after conditioning on pre-treatment time-varying covariates that could have been affected by treatment
+
+. . .
+
+[Job Displacement Example:]{.alert-blue} Path of earnings (absent job displacement) depends on pre-treatment union status, but not untreated potential union status in the second period
+
+. . .
+
+[What to do:]{.alert} Since $X_{i,t=1}(0)$ is observed for all units, we can immediately operationalize this assumption use our arguments from earlier (i.e., the ones without bad controls)
+
+* This is difficult to operationalize with a TWFE regression
+
+* In practice, you can just include the bad control among other covariates in `did`
+
+::: {.notes}
+
+* It is not the same identifying assumption as the one that we started with, but we are at least allowing for the bad control to show up in the identifying assumption
+
+:::
+
+## Option 4: Extra Assumptions
+
+Going back to the original conditional parallel trends assumption (that include both $X_{i,t=2}(0)$ and $X_{i,t=1}(0)$)...Using the same sort of arguments as for regression adjustment earlier, it follows that
+
+$$ATT = \E[\Delta Y_i | D_i=1] - \E\Big[ \E[\Delta Y_i(0) | X_{i,t=2}(0), X_{i,t=1}(0), Z_i, D_i=0] \Big| D_i=1\Big]$$ 
+
+The second term is the tricky one.  Notice that:
+
+* The inside conditional expectation is identified &mdash; we see untreated potential outcomes and covariates for the untreated group
+
+* But the outside expectation is infeasible $\implies$ we are stuck (Option 4a)
+
+## Option 4: Dealing with $X_{i,t=2}(0)$
+
+::: {.callout-note}
+
+### Covariate Unconfoundedness Assumption
+
+$$X_{i,t=2}(0) \independent D_i | X_{i,t=1}(0), Z_i$$
+
+:::
+
+[Intuition:]{.alert} For the treated group, the time-varying covariate would have evolved in the same way over time as it actually did for the untreated group, conditional on $X_{i,t=1}$ and $Z_i$.
+
+* Notice that this assumption only concerns untreated potential covariates $\implies$ it allows for $X_{i,t=2}$ to be affected by the treatment
+
+* Making an assumption like this indicates that $X_{i,t=2}(0)$ is playing a dual role: (i) start by treating it as if it's an outcome, (ii) have it continue to play a role as a covariate
+
+Under this assumption, can show that we can recover the $ATT$:
+
+$$ATT = \E[\Delta Y_i | D_i=1] - \E\left[ \E[\Delta Y_i | X_{i,t=1}, Z_i, D_i=0] \Big| D_i=1 \right]$$
+
+This is the same expression as in Option 3
+
+## Option 4: Additional Discussion
+
+In some cases, it may make sense to condition on other additional variables (e.g., the lagged outcome $Y_{t=1}$) in the covariate unconfoundedness assumption.  In this case, it is still possible to identify $ATT$, but it is more complicated
+
+It could also be possible to use alternative identifying assumptions besides covariate unconfoundedness &mdash; at a high-level, we somehow need to recover the distribution of $X_{i,t=2}(0)$
+
+* e.g., Brown, Butts, and Westerlund (2023)
+
+See Caetano et al. (2023) for more details about bad controls.
+
+# Appendix {visibility="uncounted"}
+
+## Understanding Double Robustness {visibility="uncounted"}
+
+To understand double robustness, we can rewrite the expression for $ATT$ as
+\begin{align*}
+  ATT = \E\left[ \frac{D_i}{p} \Big(\Delta Y_i - m_0(X_i)\Big) \right] - \E\left[ \frac{p(X_i)(1-D_i)}{(1-p(X_i))p} \Big(\Delta Y_i - m_0(X_i)\Big)\right]
+\end{align*}
+
+The first term is exactly the same as what comes from regression adjustment
+
+* If we correctly specify a model for $m_0(X_i)$, it will be equal to $ATT$.
+
+* If $m_0(X_i)$ not correctly specified, then, by itself, this term will be biased for $ATT$
+
+The second term can be thought of as a de-biasing term
+
+* If $m_0(X_i)$ is correctly specified, it is equal to 0
+
+* If $p(X_i)$ is correctly specified, it reduces to $\E[\Delta Y_{i,t}(0) | D_i=1] - \E[m_0(X_i)|D_i=1]$ which both delivers counterfactual untreated potential outcomes and removes the (possibly misspecified) second term from the first equation
+
+[Back](Relaxing-Parallel-Trends.html#/doubly-robust)

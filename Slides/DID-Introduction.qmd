@@ -1,12 +1,11 @@
 ---
-title: "Difference-in-Differences Workshop"
-subtitle: Terry Center for Business Analytics and Insights
+title: "Modern Approaches to Difference-in-Differences"
+subtitle: "Session 1: Introduction"
 format: clean-revealjs
 author:
   - name: Brantly Callaway
 email: brantly.callaway@uga.edu
 affiliations: University of Georgia
-date: March 22, 2024
 knitr:
   opts_chunk:
     echo: true
@@ -44,9 +43,9 @@ $\newcommand{\E}{\mathbb{E}}
 
 ## Additional Resources
 
-<span class="alert">Additional Workshop Materials: </span> [https://bcallaway11.github.io/uga-cbai-workshop/](https://bcallaway11.github.io/uga-cbai-workshop/)
+<span class="alert">Additional Workshop Materials: </span> [https://bcallaway11.github.io/lsu-workshop/](https://bcallaway11.github.io/lsu-workshop/)
 
-  * Slides, code, etc. for today's workshop
+  * Slides, code, etc. for the workshop
 
 . . .
 
