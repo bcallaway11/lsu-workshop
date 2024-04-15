@@ -1,7 +1,6 @@
-# Difference-in-Differences Workshop for Terry Center for Business Analytics and Insights
+# Difference-in-Differences Workshop at LSU
 
-
-These are the materials for the difference-in-differences workshop for the Terry Center for Business Analytics and Insights (CBAI) at UGA
+These are the materials for the difference-in-differences workshop at LSU.
 
 ## Slides
 
