@@ -1,0 +1,1382 @@
+---
+title: "Difference-in-Differences Workshop"
+subtitle: Terry Center for Business Analytics and Insights
+format: clean-revealjs
+author:
+  - name: Brantly Callaway
+email: brantly.callaway@uga.edu
+affiliations: University of Georgia
+date: March 22, 2024
+knitr:
+  opts_chunk:
+    echo: true
+---
+
+```{r echo=FALSE}
+library(revealEquations)
+```
+
+## Plan for Today
+$\newcommand{\E}{\mathbb{E}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\var}{\mathrm{var}}
+\newcommand{\cov}{\mathrm{cov}}
+\newcommand{\Var}{\mathrm{var}}
+\newcommand{\Cov}{\mathrm{cov}}
+\newcommand{\Corr}{\mathrm{corr}}
+\newcommand{\corr}{\mathrm{corr}}
+\newcommand{\L}{\mathrm{L}}
+\renewcommand{\P}{\mathrm{P}}
+\newcommand{\independent}{{\perp\!\!\!\perp}}
+\newcommand{\indicator}[1]{ \mathbf{1}\{#1\} }
+\newcommand{\T}{T}$
+
+<br>
+
+1. Intro to DID & Textbook 2 Period Case
+
+2. Staggered Treatment Adoption
+   * Issues with Traditional Regression Approaches
+   * New Approaches
+   
+3. Application/Code for Minimum Wage Policy
+
+
+## Additional Resources
+
+<span class="alert">Additional Workshop Materials: </span> [https://bcallaway11.github.io/uga-cbai-workshop/](https://bcallaway11.github.io/uga-cbai-workshop/)
+
+  * Slides, code, etc. for today's workshop
+
+. . .
+
+
+<span class="alert">References: </span> 
+
+  * Callaway (2023, *Handbook of Labor, Human Resources and Population Economics*)
+  
+  * Baker, Callaway, Cunningham, Goodman-Bacon, Sant'Anna (2024, draft posted very soon)
+  
+. . .
+
+<span class="alert">Advanced Materials: </span> [https://github.com/Mixtape-Sessions/Frontiers-in-DID](https://github.com/Mixtape-Sessions/Frontiers-in-DID)
+
+  * Relaxing the parallel trends assumption by including covariates
+
+  * Dealing with more complicated treatment regimes
+
+  * Alternative identification strategies (e.g., conditioning on lagged outcome, change-in-changes, others)
+  
+
+
+
+<!--
+## Introduction
+
+Panel data approaches are also extremely common in empirical work
+
+* Currie, Kleven, and Zwiers (AER P&P, 2020): 25% of NBER working papers in applied micro use difference-in-differences (i.e., a subset of panel data approaches to causal inference)
+
+. . .
+
+Some of this is likely due to the reasons mentioned above, but (at least as importantly) its popularity is due to wide availability of panel data
+
+
+-->
+
+
+
+
+# Part 1: Introduction to Difference-in-Differences {visibility="uncounted"}
+
+<!--
+
+## Overview of Different Approaches to Causal Inference with Panel Data
+
+<span class="alert">Types of Panel Data Approaches to Causal Inference:</span>
+
+* Difference-in-differences
+
+* Unconfoundedness conditional on lagged outcomes
+
+* Unit-specific linear trends
+
+* Interactive fixed effects 
+
+* Change-in-changes
+
+* Triple differences
+
+* Others...
+
+-->
+
+
+## Setting
+
+<span class="alert">Exploit a data structure where the researcher observes:</span>
+
+1. Multiple periods of data
+
+2. Some pre-treatment data for all units
+
+3. Some units become treated while other units remain untreated
+
+. . .
+
+(In my view) this particular data setup is a key distinguishing feature of difference-in-differences approaches relative to traditional panel data models (i.e., fixed effects, dynamic panel, etc.)
+
+* This setup also explains why the methods we consider today are often grouped among <span class="alert-blue">natural experiment</span> types of methods such as IV or RD.
+
+. . .
+
+<span class="alert-blue">Running Example:</span> Causal effects of a state-level minimum wage increase on employment
+
+* Widely studied using DID identification strategies (Card and Krueger (1994), many others)
+
+* For today: very simplified version with (1) no changes in federal minimum wage and (2) "binarized" state minimum wages (i.e., state minimum wage is either above the federal minimum wage or not)
+
+
+
+## High-Level Thoughts
+
+Panel data gives researchers the opportunity to follow the same person, firm, location, etc. over multiple time periods
+
+. . .
+
+Having this sort of data seems fundamentally useful for learning about causal effects of some treatment/policy variable.
+
+. . .
+
+To see this, the <span class="alert">fundamental problem of causal inference</span> is that we can either see a unit's treated or untreated potential outcomes (but not both)
+
+. . .
+
+However, with panel data "natural experiment" setting above, this is not 100% true.  
+
+* We can see both a unit's treated and untreated potential outcome outcome...just at different points in time
+
+* This seems extremely useful for learning about causal effects
+
+
+## Treatment Effect Heterogeneity
+
+Modern approaches also typically allow for <span class="alert">treatment effect heterogeneity</span>
+
+* That is, that effects of the treatment can vary across different units in potentially complicated ways
+
+
+This is going to be a major issue in the discussion below
+
+We'll consider implications for "traditional" regression approaches and how new approaches are designed to handle this
+
+::: {.notes}
+TE heterogeneity is the main cause of the issues with TWFE regressions that have been emphasized in recent work on DID
+:::
+
+## Notation for Setting with Two Periods
+
+<span class="alert">Data: </span> 
+
+* 2 periods: $t=1$, $t=2$ 
+    * No one treated until period $t=2$
+    * Some units remain untreated in period $t=2$
+    
+* $D_{i,t}$ treatment indicator in period $t$
+
+* 2 groups: $G_i=1$ or $G_i=0$ (treated and untreated)
+
+. . .
+
+<span class="alert">Potential Outcomes: </span> $Y_{i,t}(1)$ and $Y_{i,t}(0)$
+
+. . .
+
+<span class="alert">Observed Outcomes: </span> $Y_{i,t=2}$ and $Y_{i,t=1}$
+
+\begin{align*}
+  Y_{i,t=2} = G_i Y_{i,t=2}(1) +(1-G_i)Y_{i,t=2}(0) \quad \textrm{and} \quad Y_{i,t=1} = Y_{i,t=1}(0)
+\end{align*}
+
+
+## Target Parameter
+
+<span class="alert">Average Treatment Effect on the Treated: </span>
+$$ATT = \E[Y_{i,t=2}(1) - Y_{i,t=2}(0) | G_i=1]$$
+
+Explanation: Mean difference between treated and untreated potential outcomes in the second period among the treated group
+
+## How to Use Panel Data to Learn about $ATT$
+
+Notice that:
+\begin{align*}
+  ATT = \underbrace{\E[Y_{i,t=2}(1) | G_i=1]}_{\textrm{Easy}} - \underbrace{\E[Y_{i,t=2}(0) | G_i=1]}_{\textrm{Hard}}
+\end{align*}
+
+. . .
+
+With panel data, we can re-write this as
+
+\begin{align*}
+  ATT = \color{green}{\E[Y_{i,t=2}(1) - Y_{i,t=1}(0) | G_i=1]} - \color{red}{\E[Y_{i,t=2}(0) - Y_{i,t=1}(0) | G_i=1]}
+\end{align*}
+
+The <span style="color:green">first term</span> is how outcomes changed over time for the treated group
+
+* Notice that: in our "natural experiment" setting, this is a difference between treated and untreated potential outcomes
+
+* We can directly estimate this from the data
+   
+## How to Use Panel Data to Learn about $ATT$ {visibility="uncounted"}
+
+Notice that:
+\begin{align*}
+  ATT = \underbrace{\E[Y_{i,t=2}(1) | G_i=1]}_{\textrm{Easy}} - \underbrace{\E[Y_{i,t=2}(0) | G_i=1]}_{\textrm{Hard}}
+\end{align*}
+
+With panel data, we can re-write this as
+
+\begin{align*}
+  ATT = \color{green}{\E[Y_{i,t=2}(1) - Y_{i,t=1}(0) | G_i=1]} - \color{red}{\E[Y_{i,t=2}(0) - Y_{i,t=1}(0) | G_i=1]}
+\end{align*}
+
+The <span style="color:red">second term</span> is how outcomes *would have changed over time* if the treated group had not been treated
+
+* This is not directly observed in the data $\implies$ we need to make identifying assumptions
+
+. . .
+
+* There are many possibilities here:
+    1. <span class="alert-blue">Before-after: </span> $\color{red}{\E[Y_{i,t=2}(0) - Y_{i,t=1}(0) | G_i=1]} = 0$
+
+## How to Use Panel Data to Learn about $ATT$ {visibility="uncounted"}
+
+Notice that:
+\begin{align*}
+  ATT = \underbrace{\E[Y_{i,t=2}(1) | G_i=1]}_{\textrm{Easy}} - \underbrace{\E[Y_{i,t=2}(0) | G_i=1]}_{\textrm{Hard}}
+\end{align*}
+
+With panel data, we can re-write this as
+
+\begin{align*}
+  ATT = \color{green}{\E[Y_{i,t=2}(1) - Y_{i,t=1}(0) | G_i=1]} - \color{red}{\E[Y_{i,t=2}(0) - Y_{i,t=1}(0) | G_i=1]}
+\end{align*}
+
+The <span style="color:red">second term</span> is how outcomes *would have changed over time* if the treated group had not been treated
+
+* This is not directly observed in the data $\implies$ we need to make identifying assumptions
+
+* There are many possibilities here:
+    2. <span class="alert-blue">Lagged outcome unconfoundedness: </span> $\color{red}{\E[Y_{i,t=2}(0) - Y_{i,t=1}(0) | G_i=1]} = \E\Big[ \E[Y_{i,t=2}(0) | Y_{i,t=1}, D=0] - Y_{i,t=1}(0) \Big| G_i=1\Big]$
+
+## How to Use Panel Data to Learn about $ATT$ {visibility="uncounted"}
+
+Notice that:
+\begin{align*}
+  ATT = \underbrace{\E[Y_{i,t=2}(1) | G_i=1]}_{\textrm{Easy}} - \underbrace{\E[Y_{i,t=2}(0) | G_i=1]}_{\textrm{Hard}}
+\end{align*}
+
+With panel data, we can re-write this as
+
+\begin{align*}
+  ATT = \color{green}{\E[Y_{i,t=2}(1) - Y_{i,t=1}(0) | G_i=1]} - \color{red}{\E[Y_{i,t=2}(0) - Y_{i,t=1}(0) | G_i=1]}
+\end{align*}
+
+The <span style="color:red">second term</span> is how outcomes *would have changed over time* if the treated group had not been treated
+
+* This is not directly observed in the data $\implies$ we need to make identifying assumptions
+
+* There are many possibilities here:
+    3. <span class="alert-blue">Change-in-changes: </span> $\color{red}{\E[Y_{i,t=2}(0) - Y_{i,t=1}(0) | G_i=1]} = \E\Big[ Q_{Y_{i,t=2}(0)|G_i=0}\big(F_{Y_{i,t=1}(0)|G_i=0}(Y_{i,t=1}(0))\big) - Y_{i,t=1}(0) \Big| G_i=1\Big]$
+
+## How to Use Panel Data to Learn about $ATT$ {visibility="uncounted"}
+
+Notice that:
+\begin{align*}
+  ATT = \underbrace{\E[Y_{i,t=2}(1) | G_i=1]}_{\textrm{Easy}} - \underbrace{\E[Y_{i,t=2}(0) | G_i=1]}_{\textrm{Hard}}
+\end{align*}
+
+With panel data, we can re-write this as
+
+\begin{align*}
+  ATT = \color{green}{\E[Y_{i,t=2}(1) - Y_{i,t=1}(0) | G_i=1]} - \color{red}{\E[Y_{i,t=2}(0) - Y_{i,t=1}(0) | G_i=1]}
+\end{align*}
+
+The <span style="color:red">second term</span> is how outcomes *would have changed over time* if the treated group had not been treated
+
+* This is not directly observed in the data $\implies$ we need to make identifying assumptions
+
+* There are many possibilities here:
+    4. <span class="alert-blue">Difference-in-differences: </span> &#x27A1;
+
+
+```{r echo=FALSE, results="asis"}
+
+title <- "DID with Two Periods"
+
+before <- "
+
+<br>
+
+::: {.callout-note} 
+
+### Parallel Trends Assumption
+
+$$\\color{red}{\\E[\\Delta Y_i(0) | G_i=1]} = \\E[\\Delta Y_i(0) | G_i=0]$$
+
+:::
+
+<br>
+
+Explanation: Mean path of untreated potential outcomes is the same for the treated group as for the untreated group
+
+. . .
+
+<span class=\"alert\">Identification: </span>Under PTA, we can identify $ATT$:"
+
+after <- "
+
+. . .
+
+$\\implies ATT$ is identified can be recovered by the difference in outcomes over time (difference 1) relative to the difference in outcomes over time for the untreated group (difference 2)"
+
+eqlist <- list("ATT &= \\E[\\Delta Y_i | G_i=1] - \\E[\\Delta Y_i(0) | G_i=1]", 
+               "&= \\E[\\Delta Y_i | G_i=1] - \\E[\\Delta Y_i | G_i=0]")
+
+step_by_step_eq(eqlist=eqlist,
+                before=before,
+                after=after,
+                title=title)
+```
+
+
+## Estimation
+
+The most straightforward approach to estimation is plugin:
+
+$$\widehat{ATT} = \frac{1}{n_1} \sum_{i=1}^n G_i \Delta Y_i - \frac{1}{n_0} \sum_{i=1}^n (1-G_i) \Delta Y_i$$
+
+. . .
+
+Alternatively, [TWFE regression:]{.alert-blue} $$Y_{i,t} = \theta_t + \eta_i + \alpha D_{i,t} + e_{i,t}$$
+
+. . .
+
+- Even though it looks like this model has restricted the effect of participating in the treatment to be constant (and equal to $\alpha$) across all individuals, TWFE (in this case) is actually [robust]{.alert} to treatment effect heterogeneity. 
+
+:::{.notes}
+* This robustness is a notable (and very good) property for the TWFE regression
+
+* It is emphasized in MHE
+
+* The regression is also very convenient &mdash; we can estimate ATT, recover standard errors, conduct inference, all in one step
+:::
+
+. . .
+
+* To see this, notice that (with two periods) the previous regression is equivalent to
+\begin{align*}
+  \Delta Y_{i,t} = \Delta \theta_t + \alpha \Delta D_{i,t} + \Delta e_{i,t}
+\end{align*}
+This is fully saturated in $\Delta D_{i,t}$ (which is binary) $\implies$
+\begin{align*}
+  \alpha = \E[\Delta Y_{i,t}|G_i=1] - \E[\Delta Y_{i,t}|G_i=0] = ATT
+\end{align*}
+    
+
+
+
+
+## TWFE Regression
+    
+It's easy to make the TWFE regression more complicated:
+
+  - Multiple time periods
+  
+  - Variation in treatment timing
+  
+  - More complicated treatments
+  
+  - Introducing additional covariates
+
+
+Unfortunately, the robustness of TWFE regressions to treatment effect heterogeneity or these more complicated (and empirically relevant) settings does not seem to hold
+
+. . .
+
+* Much of the recent (mostly negative) literature on TWFE in the context of DID has considered these types of "realistic" settings
+
+* Next, we will consider one of these settings: [staggered treatment adoption]{.alert}
+
+
+# Part 2: Staggered Treatment Adoption {visibility="uncounted"}
+
+## Setup with Staggered Treatment Adoption
+
+$\T$ time periods
+
+[Staggered treatment adoption:]{.alert-blue} Units can become treated at different points in time, but once a unit becomes treated, it remains treated.
+
+. . .
+
+<span class="alert">Examples:</span>
+
+* Government policies that roll out in different locations at different times (minimum wage is close to this over short time horizons)
+
+* "Scarring" treatments: e.g., job displacement does not typically happen year after year, but rather labor economists think of being displaced as changing a person's "state" (the treatment is more like: has a person ever been displaced) 
+
+. . .
+
+[Notation:]{.alert}
+
+* In math, staggered treatment adoption means: $D_{i,t-1}=1 \implies D_{i,t}=1$.
+
+* $G_i$ &mdash; a unit's [group]{.alert-blue} &mdash; the time period that unit becomes treated.
+  * Under staggered treatment adoption, fully summarizes a unit's treatment regime 
+
+* Define $U_i=1$ for never-treated units and $U_i=0$ otherwise.
+
+
+## Setup with Staggered Treatment Adoption
+
+[Notation (cont'd):]{.alert}
+
+- Potential outcomes: $Y_{i,t}(g)$ &mdash; the outcome that unit $i$ would experience in time period $t$ if they became treated in period $g$.
+
+. . .
+
+- Untreated potential outcome: $Y_{i,t}(0)$ &mdash; the outcome unit $i$ would experience in time period $t$ if they did not participate in the treatment in any period.  
+
+. . .
+
+- Observed outcome: $Y_{i,t}=Y_{i,t}(G_i)$
+
+. . .
+
+- No anticipation condition: $Y_{i,t} = Y_{i,t}(0)$ for all $t < G_i$ (pre-treatment periods for unit $i$)
+
+
+
+
+## Target Parameters
+
+<span class="alert">Group-time average treatment effects</span> 
+\begin{align*}
+  ATT(g,t) = \E[Y_{i,t}(g) - Y_{i,t}(0) | G_i=g]
+\end{align*}
+
+Explanation: $ATT$ for group $g$ in time period $t$
+
+<br>
+
+. . .
+
+
+<span class="alert">Event Study</span> 
+\begin{align*}
+  ATT^{es}(e) = \E[ Y_{i,g+e}(G) - Y_{i,g+e}(0) | G_i \in \mathcal{G}_e]
+\end{align*}
+
+where $\mathcal{G}_e$ is the set of groups observed to have experienced the treatment for $e$ periods at some point.
+
+Explanation: $ATT$ when units have been treated for $e$ periods
+
+<!--In math: $\mathcal{G}_e = \{g : (g+e) \in [2,T] \textrm{ and } g > 0\}$-->
+
+## Target Parameters
+
+<span class="alert">Overall ATT</span>
+
+Towards this end: the average treatment effect for unit $i$</span> (across its post-treatment time periods) is given by:
+$$\bar{\tau}_i(g) = \frac{1}{\T - g + 1} \sum_{t=g}^{\T} \Big( Y_{i,t}(g) - Y_{i,t}(0) \Big)$$
+
+. . .
+
+Then, 
+
+\begin{align*}
+  ATT^o = \E[\bar{\tau}_i(G_i) | U_i=0]
+\end{align*}
+
+Explanation: $ATT$ across all units that every participate in the treatment
+
+:::{.notes}
+
+* Briefly mention *simple* version of overall ATT
+
+:::
+
+## Target Parameters
+
+To understand the discussion later, it is also helpful to think of $ATT(g,t)$ as a <span class="alert">building block</span> for the other parameters discussed above.  In particular:
+
+:::: {.columns}
+
+::: {.fragment .column}
+[Event Study]{.alert}
+\begin{align*}
+  ATT^{es}(e) = \sum_{g \in \bar{\mathcal{G}}} w^{es}(g,e) ATT(g,g+e) 
+\end{align*}
+:::
+
+::: {.fragment .column}
+[Overall ATT]{.alert}
+\begin{align*}
+  ATT^o = \sum_{g \in \bar{\mathcal{G}}} \sum_{t=g}^{\T} w^o(g,t) ATT(g,t)
+\end{align*}
+:::
+
+::::
+
+::::{.columns}
+
+::: {.fragment .column}
+<p style="margin-left:20px;">where</p>
+\begin{align*}
+  w^{es}(g,e) = \indicator{g \in \mathcal{G}_e} \P(G_i=g|G\in \mathcal{G}_e) 
+\end{align*}
+:::
+
+::: {.fragment .column}
+<p style="margin-left:20px;">where</p>
+\begin{align*}
+  w^o(g,t) = \frac{\P(G_i=g|U_i=0)}{\T-g+1}
+\end{align*}
+:::
+
+:::::
+
+. . .
+
+<br>
+
+In other words, if we can identify/recover $ATT(g,t)$, then we can proceed to recover $ATT^{es}(e)$ and $ATT^o$.
+
+
+
+## DID Identification of $ATT(g,t)$
+
+<br>
+
+::: {.callout-note}
+
+## Multiple Period Version of Parallel Trends Assumption
+
+For all groups $g \in \bar{\mathcal{G}}$ (all groups except the never-treated group) and for all time periods $t=2,\ldots,\T$,
+\begin{align*}
+  \E[\Delta Y_{i,t}(0) | G_i=g] = \E[\Delta Y_{i,t}(0) | U_i=1]
+\end{align*}
+
+:::
+
+<br>
+
+. . .
+
+Using very similar arguments as before, can show that 
+\begin{align*}
+  ATT(g,t) = \E[Y_{i,t} - Y_{i,g-1} | G_i=g] - \E[Y_{i,t} - Y_{i,g-1} | U_i=1]
+\end{align*}
+
+. . .
+
+where the main difference is that we use $(g-1)$ as the [base period]{.alert} (this is the period right before group $g$ becomes treated).
+
+
+
+## Summary
+
+The previous discussion emphasizes a general purpose identification strategy with staggered treatment adoption:
+
+. . .
+
+[Step 1:]{.alert} Target disaggregated treatment effect parameters (i.e., group-time average treatment effects)
+
+<!--
+* You can use many existing approaches for this step (generally with very minor modification) that work for smaller problems without staggered treatment adoption
+
+* Discussion above has been for DID identification strategy, but other possibilities fit into this framework: conditioning on lagged outcomes, unit-specific linear trends, interactive fixed effects, change-in-changes, triple differences, etc.
+-->
+
+[Step 2:]{.alert} (If desired) combine disaggregated treatment effects into lower dimensional summary treatment effect parameter
+
+. . .
+
+Notice that:
+
+* This amounts to breaking the problem into a set of two-period DID problems and then combining the results
+
+* It is also a general purpose strategy in that the same high-level idea is (1) not DID-specific and (2) can (possibly) be applied to more complicated treatment regimes
+
+## What Can Go Wrong with TWFE Regression?
+
+With staggered treatments, traditionally DID identification strategies have been implemented with two-way fixed effects (TWFE) regressions:
+\begin{align*}
+  Y_{i,t} = \theta_t + \eta_i + \alpha D_{i,t} + e_{i,t}
+\end{align*}
+
+One main contribution of recent work on DID has been to diagnose and understand the limitations of TWFE regressions for implementing DID
+
+. . .
+
+<span class="alert-blue">Goodman-Bacon (2021) intuition:</span> $\alpha$ "comes from" comparisons between the path of outcomes for units whose <span class="alert">treatment status changes</span> relative to the path of outcomes for units whose <span class="alert">treatment status stays the same</span> over time.
+
+. . .
+
+* Some comparisons are for groups that become treated to <span class="alert">not-yet-treated</span> groups &#x1F44D;
+
+* Other comparisons are for groups that become treated relative to <span class="alert">already-treated</span> groups &#x1F44E;
+    * This can be especially problematic when there are treatment effect dynamics.  Dynamics imply different trends from what would have happened absent the treatment.
+
+## What Can Go Wrong with TWFE Regression? {#dCdH}
+
+<span class="alert-blue">de Chaisemartin and d'Haultfoeuille (2020) intuition:</span> You can write $\alpha$ as a weighted average of $ATT(g,t)$
+
+First, a decomposition:
+\begin{align*}
+\alpha &= \sum_{g \in \bar{\mathcal{G}}} \sum_{t=g}^{\T}  w^{TWFE}(g,t) \Big( \E[(Y_{i,t} - Y_{i,g-1}) | G_i=g] - \E[(Y_{i,t} - Y_{i,g-1}) | U_i=1] \Big) \\
+  & + \sum_{g \in \bar{\mathcal{G}}} \sum_{t=1}^{g-1} w^{TWFE}(g,t) \Big( \E[(Y_{i,t} - Y_{i,g-1}) | G_i=g] - \E[(Y_{i,t} - Y_{i,g-1}) | U_i=1] \Big)
+\end{align*}
+
+. . .
+  
+Second, under parallel trends:  
+\begin{align*}
+\alpha = \sum_{g \in \bar{\mathcal{G}}} \sum_{t=g}^{\T} w^{TWFE}(g,t) ATT(g,t)
+\end{align*}
+
+* But the weights are (non-transparently) driven by the estimation method
+
+* These weights have some good / bad / strange properties such as possibly being negative
+
+* [[More Details](#twfe-explanation)]
+
+<!-- negative weights can be ruled out if there are no treatment effect dynamics -->
+
+<!--depend on relative group sizes-->
+
+
+<!-- for a fixed group more weight on earlier periods -->
+
+
+<!--for a fixed time period more weight on earlier treated groups -->
+
+<!--weights would change if you added an extra pre-treatment period-->
+
+
+## New Approaches
+
+<span class="alert">We'll discuss:</span>
+
+1. Callaway and Sant'Anna (2021), R: `did`, Stata: `csdid`, Python: `csdid`
+
+2. Sun and Abraham (2021), R: `fixest`, Stata: `eventstudyinteract`
+
+3. Wooldridge (2021), R: `etwfe`, Stata: `JWDID`
+
+4. Gardner et al. (2023) / Borusyak, Jaravel, Spiess (2023), R: `did2s`, Stata: `did2s` and `did_imputation`
+
+. . .
+
+<span class="alert">Not including:</span>
+
+1. "Stacked Regression" (Cengiz, Dube, Lindner, and Zipperer (2019) and Dube, Girardi, Jorda, and Taylor (2023)), Stata: `stackedev`
+
+2. de Chaisemartin and d'Haultfoeuille (2020), R: `DIDmultiplegt`, Stata: `did_multiplegt`
+
+:::{.notes}
+
+* stacked regression is similar to CS, for a particular group, take its observations + clean controls (not-yet-treated) observations, do this for all groups, and "stack" into a new dataset, then run a TWFE regression on this data.  You still have weights driven by the estimation method, but you get rid of negative weights issues and can "undue" the negative weights
+
+* DID_M is like ATT^{es}(0), stata command can allow for different values of e, though I'm not super familiar with it
+
+:::
+
+::: {.fragment}
+See Baker, Larcker, Wang (2022) and Callaway (2023) for more substantially more details.
+:::
+
+
+## Callaway and Sant'Anna (2021)
+
+<span class="alert">Intuition:</span> Directly implement the identification result discussed above
+
+. . .
+
+* Under parallel trends, recall that
+
+\begin{align*}
+  ATT(g,t) = \E[Y_{i,t} - Y_{i,g-1} | G_i=g] - \E[Y_{i,t} - Y_{i,g-1} | U_i=1]
+\end{align*}
+    
+. . .
+
+<span class="alert">Estimation:</span>
+
+\begin{align*}\widehat{ATT}^{CS}(g,t) = \frac{1}{n_g}\sum_{i=1}^n \indicator{G_i = g}(Y_{i,t} - Y_{i,g-1}) - \frac{1}{n_U}\sum_{i=1}^n \indicator{U_i = 1} (Y_{i,t} - Y_{i,g-1})
+\end{align*}
+
+<span class="alert">2nd step:</span> Recall: group-time average treatment effects are building blocks for more aggregated parameters such as $ATT^{es}(e)$ and $ATT^o$ $\implies$ just plug in 
+
+* $\implies$ two-step estimation procedure: target local/disaggregated $ATT(g,t)$ in first step, then (if desired) aggregate them into lower dimensional parameters
+
+
+## Sun and Abraham (2021)
+
+<span class="alert">Intuition: </span> Paper points out limitations of event-study versions of the TWFE regressions discussed above:
+
+\begin{align*}
+  Y_{i,t} = \theta_t + \eta_i + \sum_{e=-(\T-1)}^{-2} \beta_e D_{i,t}^e + \sum_{e=0}^{\T} \beta_e D_{i,t}^e + e_{i,t}
+\end{align*}
+
+:::{.notes}
+where $D_{i,t}^e = \indicator{G_i + e = t}$ is a binary indicator of having been treated for exactly $e$ periods in period $t$
+:::
+
+and points out similar issues. In particular, the event study regression is "underspecified" $\implies$ heterogeneous effects can "confound" the treatment effect estimates
+
+. . .
+
+<span class="alert">Solution:</span> Run fully interacted regression:
+\begin{align*}
+  Y_{i,t} = \theta_t + \eta_i + \sum_{g \in \bar{\mathcal{G}}} \sum_{e \neq -1} \delta^{SA}_{ge} \indicator{G_i=g} \indicator{g+e=t} + e_{i,t}
+\end{align*}
+
+
+. . .
+
+<span class="alert">2nd step:</span> Aggregate $\delta^{SA}_{ge}$'s across groups (usually into an event study).
+
+* This sidesteps issues with the event study regression coming from treatment effect heterogeneity
+
+* For inference, need to account for two-step estimation procedure
+
+## Wooldridge (2021)
+
+<span class="alert">Intuition:</span> Are issues in DID literature due to limitations of TWFE regressions per se or due to *misspecification* of TWFE regression?
+
+. . .
+
+[Solution:]{.alert} Proposes running "more interacted" TWFE regression:
+
+\begin{align*}
+  Y_{i,t} = \theta_t + \eta_i + \sum_{g \in \bar{\mathcal{G}}} \sum_{s=g}^{\T} \alpha_{gt}^W \indicator{G_i=g, t=s} + e_{i,t}
+\end{align*}
+
+. . .
+
+This is quite similar to Sun and Abraham (2021) except for that it doesn't include interactions in pre-treatment periods. [The differences about $(g,t)$ relative to $(g,e)$ are trivial.]
+
+* Like SA, this provides robustness to treatment effect heterogeneity by including more interactions
+
+* Like SA, unless mainly interested in $ATT(g,t)$, have to do second step aggregation that (arguably) ends the "killer feature" of the TWFE regression to begin with
+
+
+## Gardner et al. (2023) / BJS (2023)
+
+<span class="alert">Intuition: </span>Parallel trends is closely connected to a TWFE model *for untreated potential outcomes*
+$$Y_{i,t}(0) = \theta_t + \eta_i + e_{i,t}$$
+
+. . .
+
+<span class="alert">Estimation:</span>
+
+* Step 1: Split data into treated and untreated observations
+
+* Step 2: Estimate above model for the set of untreated observations
+
+* Step 3: "Impute" $\hat{Y}_{i,t}(0) = \hat{\theta}_t + \hat{\eta}_i$ for the treated observations
+
+* $\displaystyle \widehat{ATT}^{G/BJS}(g,t) = \frac{1}{n_g} \sum_{i=1}^n \indicator{G_i=g}\Big(Y_{i,t} - \hat{Y}_{i,t}(0)\Big) \xrightarrow{p} ATT(g,t)$
+
+Can compute other treatment effect parameters too (e.g., event study or overall average treatment effect)
+
+:::{.notes}
+
+* I like this one: focuses on the problem of figuring out what's going on with untreated potential outcomes, global estimation (for better or worse) of model of untreated potential outcomes 
+
+:::
+
+---
+
+## Similarities and Differences
+
+In my view, all of the approaches discussed above are fundamentally similar to each other.  
+
+. . .
+
+In practice, it is sometimes possible to get different results though this is often driven by
+
+* Different estimation strategies trading off efficiency and robustness in different ways 
+
+* Different choices in terms of default implementation details in computer code
+
+
+
+
+## Comparison 1: CS and SA
+
+In post-treatment periods, these give numerically identical results: $\widehat{ATT}^{CS}(g,t) = \hat{\delta}^{SA}_{t,t-g}$
+
+* This is because a fully interacted regression (SA) is equivalent to taking differences in averages across groups (CS)
+
+
+In pre-treatment periods, code will give different pre-treatment estimates, but this is due to different default choices
+
+* In SA, all results are relative to a fixed base period (typically the period right before treatment)
+
+* In CS, by default, in pre-treatment periods, estimates are of placebo policy effects on impact (i.e., the base period is always the most recent pre-treatment period)
+
+
+::: {.notes}
+
+Similarly, results will be different if you choose a different comparsion group in CS (e.g., not-yet-treated vs. never-treated).
+
+
+In both cases, these are just different choices though, and, for example, it is feasible (and easy) to set a fixed base period in CS
+
+:::
+
+## Comparison 2: SA and Wooldridge
+
+These are clearly closely related, with the difference amounting to whether or not one includes indicators for pre-treatment periods.
+
+. . .
+
+It is fair to see this as a way to <span class="alert">trade-off robustness and efficiency</span>
+
+* If parallel trends holds across all time periods, then Wooldridge can tend to deliver more efficient estimates (as effectively all pre-treatment periods are used as base periods)
+
+* If parallel trends is violated in some pre-treatment periods but holds post-treatment, Wooldridge estimates will be inconsistent, but SA estimates will be robust to violations of parallel trends in pre-treatment periods.
+
+## Comparison 3: Wooldridge and Gardner/BJS
+
+Wooldridge and Gardner/BJS give numerically the same estimates: $\hat{\alpha}^W_{gt} = \widehat{ATT}^{G/BJS}(g,t)$
+
+
+Intuition: Including full set of interactions is equivalent to estimating separate models by groups
+
+::: {.notes}
+
+* This is similar to, e.g., Oaxaca-Blinder decompositions and regression adjustment .
+
+:::
+
+## Comments
+
+The above discussion emphasizes the conceptual similarities between different proposed alternatives to TWFE regressions in the literature.
+
+. . .
+
+The other major source of differences in estimates across procedures is [different default options]{.alert} in software implementations.  [Examples:]{.alert}
+
+1. Base Periods
+    * It's possible to come up with an imputation estimator that uses the base period right before treatment only $\implies$ $\uparrow$ robustness, $\downarrow$ efficiency
+    * It's also possible to do a version of CS with more base periods $\implies$ $\uparrow$ efficiency $\downarrow$ robustness
+        * Build-the-trend (i.e., path relative to average pre-treatment outcome) and GMM, Callaway (2023), Marcus and Sant'Anna (2021), Lee and Wooldridge (2023).
+
+
+
+## Comments {visibility="uncounted"}
+
+The above discussion emphasizes the conceptual similarities between different proposed alternatives to TWFE regressions in the literature.
+
+The other major source of differences in estimates across procedures is [different default options]{.alert} in software implementations.  [Examples:]{.alert}
+
+2. Overall average treatment effects 
+    * CS emphasizes the "overall" treatment effects discussed above
+    * Default implementations of imputation run a regression of $Y_{i,t}-\hat{Y}_{i,t}(0)$ on $D_{i,t}$ which delivers the "simple" overall average treatment effect which just averages all available treatment effects
+    
+:::{.notes}
+
+My two favorite of the new estimation procedures are:
+
+(1) Imputation
+
+  * I like the idea of focusing on the problem of what's going on with untreated potential outcomes
+  
+  * one shot estimation of the model for untreated potential outcomes
+  
+(2) Callaway and Sant'Anna
+
+  * To me, real conceptual advantages of implementing the identification strategy when possible.  We (in the sense of economists) made a lot of mistakes by using estimation strategies that effectively imposed more than we said we were imposing
+  
+  * More flexible approach for including covariates, which we haven't talked about here, but are important in applications and also connects well with literature on doubly robust estimation and machine learning
+
+:::
+
+<!--
+
+## Additional Issues: Alternative Comparison Group
+
+Above, we used the "never-treated" group (i.e., $U_i=1$) as the comparison group, but there are other possibilities:
+
+* Not-yet-treated group: includes both $U_i=1$ as well as other units that satisfy $G_i > t$
+* Not-yet-but-eventually-treated group: don't include $U_i=1$
+* Other possibilities as well...
+
+<br>
+
+## Additional Issues: Anticipation
+
+In many applications, units may observe that a policy is about to be implemented and go ahead and change their behaviors before the policy is actually implemented.
+
+* This is straightforward to deal with.  If there is one period of anticipation, you can set the base period to be $g-2$ rather than $g-1$, so that
+
+$$ATT(g,t) = \E[Y_{i,t} - Y_{g-2} | G_i=g] - \E[Y_{i,t} - Y_{g-2} | U_i=1]$$
+
+-->
+
+
+# Part 3 :Empirical Example {visibility="uncounted"}
+
+## Empirical Example: Minimum Wages and Employment
+
+- Use county-level data from 2003-2007 during a period where the federal minimum wage was flat
+
+. . . 
+
+- Exploit minimum wage changes across states
+
+    - Any state that increases their minimum wage above the federal minimum wage will be considered as treated
+  
+. . . 
+
+- Interested in the effect of the minimum wage on teen employment
+
+. . . 
+
+- We'll also make a number of simplifications:
+  * not worry much about issues like clustered standard errors
+  * not worry about variation in the amount of the minimum wage change (or whether it keeps changing) across states
+
+. . . 
+
+[Goals: ]{.alert}
+
+* Get some experience with an application and DID-related code
+
+* Assess how much do the issues that we have been talking about matter in practice
+
+
+
+## Code
+
+Full code is available on GitHub.
+
+<span class="alert">R packages used in empirical example</span>
+
+```{r, message=FALSE}
+library(did)
+library(BMisc)
+library(twfeweights)
+library(fixest)
+library(modelsummary)
+library(ggplot2)
+load(url("https://github.com/bcallaway11/did_chapter/raw/master/mw_data_ch2.RData"))
+```
+
+
+
+## Setup Data
+
+<br>
+
+```{r}
+# drops NE region and a couple of small groups
+mw_data_ch2 <- subset(mw_data_ch2, (G %in% c(2004,2006,2007,0)) & (region != "1"))
+head(mw_data_ch2[,c("id","year","G","lemp","lpop","lavg_pay","region")])
+```
+
+<br>
+
+```{r}
+# drop 2007 as these are right before fed. minimum wage change
+data2 <- subset(mw_data_ch2, G!=2007 & year >= 2003)
+# keep 2007 => larger sample size
+data3 <- subset(mw_data_ch2, year >= 2003)
+```
+
+
+## TWFE Regression
+
+```{r}
+twfe_res2 <- fixest::feols(lemp ~ post | id + year,
+                           data=data2,
+                           cluster="id")
+```
+
+<br>
+
+```{r}
+modelsummary(list(twfe_res2), gof_omit=".*")
+```
+
+
+
+
+## $ATT(g,t)$ (Callaway and Sant'Anna)
+
+```{r warning=FALSE}
+attgt <- did::att_gt(yname="lemp",
+                     idname="id",
+                     gname="G",
+                     tname="year",
+                     data=data2,
+                     control_group="nevertreated",
+                     base_period="universal")
+tidy(attgt)[,1:5] # print results, drop some extra columns
+```
+
+
+
+
+
+## Plot $ATT(g,t)$'s
+
+
+```{r, fig.align="center", fig.width=10, fig.height=8, echo=FALSE}
+ggdid(attgt, ylim=c(-.2,.05))
+```
+
+
+
+## Compute $ATT^o$
+
+```{r}
+attO <- did::aggte(attgt, type="group")
+summary(attO)
+```
+
+. . .
+
+[[Event Study](#event-study)]
+
+
+## Comments
+
+The differences between the CS estimates and the TWFE estimates are fairly large here: the CS estimate is about 50% larger than the TWFE estimate, though results are qualitatively similar.
+
+## de Chaisemartin and d'Haultfoeuille weights
+
+```{r echo=FALSE, fig.align="center", fig.width=10, fig.height=8}
+tw <- twfeweights::twfe_weights(attgt)
+tw <- tw[tw$G != 0,]
+tw$post <- as.factor(1*(tw$TP >= tw$G))
+twfe_est <- sum(tw$wTWFEgt*tw$attgt)
+ggplot(data=tw,
+       mapping=aes(x=wTWFEgt, y=attgt, color=post)) +
+  geom_hline(yintercept=0, linewidth=1.5) +
+  geom_vline(xintercept=0, linewidth=1.5) + 
+  geom_point(size=6) +
+  theme_bw() +
+  ylim(c(-.15,.05)) + xlim(c(-.4,.7))
+```
+
+
+
+## $ATT^o$ weights 
+
+```{r echo=FALSE, fig.align="center", fig.width=10, fig.height=8}
+wO <- attO_weights(attgt)
+wO <- wO[wO$G != 0,]
+attO_est = sum(wO$wOgt*wO$attgt)
+wO$post <- as.factor(1*(wO$TP >= wO$G))
+ggplot(data=wO,
+       mapping=aes(x=wOgt, y=attgt, color=post)) +
+  geom_hline(yintercept=0, linewidth=1.5) +
+  geom_vline(xintercept=0, linewidth=1.5) + 
+  geom_point(shape=18, size=8) +
+  theme_bw() +
+  ylim(c(-.15,.05)) + xlim(c(-.4,.7))
+```
+
+
+
+## Weight Comparison 
+
+```{r echo=FALSE, fig.align="center", fig.width=10, fig.height=8}
+plot_df <- cbind.data.frame(tw, wOgt=wO$wOgt)
+plot_df <- plot_df[plot_df$post==1,]
+plot_df$g.t <- as.factor(paste0(plot_df$G,",",plot_df$TP))
+
+ggplot(plot_df, aes(x=wTWFEgt, y=attgt, color=g.t)) +
+  geom_point(size=6) +
+  theme_bw() +
+  ylim(c(-.15,.05)) + xlim(c(-.4,.7)) + 
+  geom_point(aes(x=wOgt), shape=18, size=8) +
+  geom_hline(yintercept=0, linewidth=1.5) +
+  geom_vline(xintercept=0, linewidth=1.5) + 
+  xlab("weight")
+```
+
+
+
+## Discussion 
+
+To summarize: $ATT^o = -0.057$ while $\alpha^{TWFE} = -0.038$.  This difference can be fully accounted for
+
+* Pre-treatment differences in paths of outcomes across groups: explains about 64% of the difference
+
+* Differences in weights applied to the same post-treatment $ATT(g,t)$: explains about 36% of the difference. [If you apply the post-treatment weights and "zero out" pre-treatment differences, the estimate would be $-0.050$.]
+
+```{r echo=FALSE, eval=FALSE}
+twfe_post <- sum(tw$wTWFEgt[tw$post==1] * tw$attgt[tw$post==1])
+twfe_post
+
+# pre-treatment contamination/bias
+pre_bias <- sum(tw$wTWFEgt[tw$post==0] * tw$attgt[tw$post==0])
+pre_bias
+
+twfe_bias <- twfe_est - attO_est
+pre_bias/twfe_bias # bias from pre-treatment PTA violations
+(twfe_post-attO_est)/twfe_bias # bias from TWFE weights instead of ATT^o weights
+```
+
+. . . 
+
+In my experience: this is fairly representative of how much new DID approaches matter relative to TWFE regressions.  It does not seem like "catastrophic failure" of TWFE, but (in my view) these are meaningful differences (and, e.g., given slightly different $ATT(g,t)$'s, the difference in the weighting schemes could change the qualitative results).
+
+* Of course, this whole discussion hinges crucially on how much treatment effect heterogeneity there is.  More TE Het $\implies$ more sensitivity to weighting schemes [just looking at TWFE regression does not give insight into how much TE Het there is.]
+
+
+
+## Additional Comments on Weights {#weights-comments}
+
+One more comment: there is a lot concern about [negative weights]{.alert} (both in econometrics and empirical work).  
+
+. . .
+
+* There were no negative weights in the example above, but the weights still weren't great.  
+
+. . .
+
+* But, in my view, the [more important issue is the non-transparent weighting scheme]{.alert}.
+    * Example 1: If you try using `data3` (the data that includes $G_i=2007$), you will get a negative weight on $ATT(g=2004,t=2007)$.  But it turns out not to matter much, and TWFE works better in this case than in the case that I showed you.
+    * [[Example 2: Alternative treatment effect parameter](#simple)] &#x27A1;
+
+
+:::{.notes}
+
+* negative weights often seen as a dividing line between reasonable and unreasonable weighting scheme, but I don't think this is correct
+
+* weights can still be poor even if they are all positive
+
+:::
+
+
+## Conclusion
+
+<br>
+
+<center><h1>Should You Use These New Approaches?</h1></center>
+
+[Not a Panacea]{.alert}
+
+* Good properties of new approaches are conditional on parallel trends holding
+
+::: {.notes}
+
+* If you're doing DID, your first concern should be about the identification strategy itself
+
+:::
+
+[Advantages:]{.alert}
+
+* Off-the-shelf robust to treatment effect heterogeneity 
+
+* Arguably, simpler and more transparent
+
+* Direct implementation of the DID identification strategy
+
+:::{.notes}
+
+* Not sure if this is a good analogy, but I am currently teaching 1st year econometrics for ph.d. students, and a classic topic in that class is about standard errors and homoskedasiticity and heteroskedasicity.  I am not against calculating standard errors under homoskedasticity if you say that you are assuming homoskedasticity (and have a good reason to believe it or test for it, etc.), but I am against saying that standard errors are robust to heterogeneity and then computing standard errors under homoskedasticity.  Its true that this choice may not "change the results" in a good fraction of applications, but it still isn't right.  If you are willing to say that you assume that treatment effects don't change across groups and time periods, then TWFE is all good, but, to me, it doesn't make sense to say that you are *only* assuming parallel trends (w/o restricting TE het.) and then run a traditional TWFE regression.
+
+:::
+
+[Possible Disadvantages:]{.alert}
+
+* Not yet available for all possible types of treatments where DID identification strategies are used
+
+::: {.notes}
+
+* Generally, it is possible/easy to figure out the underlying comparisons that we want to make, but can be hard to figure out how to pool the information. (e.g., minimum wage)
+
+* That said, not clear that this is necessarily a disadvantage.  What we know about TWFE regressions is that they are generally equal to weighted averages of underlying causal effect parameters (this has been shown in many more complicated settings than the staggered treatment case we talked about today), but the weights are non-transparent and driven by the estimation method.
+
+* This means that *you* and the *regression* are basically agreed on the underlying components of a summary treatment effect parameter, and that you have a problem about combining information, the regression will *make a choice for you* but based on what we know about existing cases, usually the regression doesn't make good choices...don't think we should punt on these problems, and think that explicitly proposing ways to combine information should an important consideration in empirical work in economics.
+
+:::
+
+
+# Appendix {visibility="uncounted"}
+
+## Event Study {visibility="uncounted"}
+
+```{r}
+attes <- aggte(attgt, type="dynamic")
+ggdid(attes)
+```
+
+[Back](DID-Introduction.html#/compute-atto)
+
+## How do these results work? {#twfe-explanation visibility="uncounted"}
+
+Consider a simplified setting where $\T=2$, but we allow for there to be units that are already treated in the first period.
+
+$\implies$ 3 groups: $G_i=1$, $G_i=2$, $G_i=\infty$
+
+. . .
+
+Because there are only two periods, the TWFE regression is equivalent to the regression
+\begin{align*}
+  \Delta Y_i = \Delta \theta_{i,t=2} + \alpha \Delta D_{i,t=2} + \Delta e_{i,t=2}
+\end{align*}
+
+. . .
+
+Moreover, $\Delta D_{i,t=2}$ only takes two values:
+
+* $\Delta D_{i,t=2} = 0$ for $G_i=1$ and $G_i=\infty$
+
+* $\Delta D_{i,t=2} = 1$ for $G_i=2$
+
+. . .
+
+Thus, this is a fully saturated regression, and we have that
+\begin{align*}
+  \alpha = \E[\Delta Y_i | \Delta D_{i,t=2} = 1] - \E[\Delta Y_i | \Delta D_{i,t=2}=0]
+\end{align*}
+
+
+## TWFE Explanation (cont'd) {visibility="uncounted"}
+
+Starting from the previous slide:
+\begin{align*}
+  \alpha = \E[\Delta Y_i | \Delta D_{i,t=2} = 1] - \E[\Delta Y_i | \Delta D_{i,t=2}=0]
+\end{align*}
+and consider the term on the far right, we have that
+\begin{align*}
+  \E[\Delta Y_i | \Delta D_{i,t=2}=0] = \E[\Delta Y_i | G_i=1] \underbrace{\frac{p_1}{p_1 + p_\infty}}_{=: w_1} + \E[\Delta Y_i | G_i=\infty] \underbrace{\frac{p_\infty}{p_1 + p_\infty}}_{=: w_\infty}
+\end{align*}
+
+. . .
+
+where $w_1$ and $w_\infty$ are the relative sizes of group 1 and the never treated group, and notice that $w_1 + w_\infty = 1$.  Plugging this back in $\implies$
+\begin{align*}
+  \alpha = \Big( \E[\Delta Y_i | G_i=2] - \E[\Delta Y_i | G_i=1]\Big) w_1 + \Big( \E[\Delta Y_i | G_i=2] - \E[\Delta Y_i|G_i=\infty]\Big) w_\infty
+\end{align*}
+
+. . .
+
+This is exactly the Goodman-Bacon result!  $\alpha$ is a weighted average of all possible 2x2 comparisons
+
+```{r echo=FALSE, results="asis"}
+title <- "TWFE Explanation (cont'd)"
+
+before <- "Let\'s keep going:
+\\begin{align*}
+  \\alpha = \\underbrace{\\Big( \\E[\\Delta Y_i | G_i=2] - \\E[\\Delta Y_i | G_i=1]\\Big)}_{\\textrm{What is this?}} w_1 + \\underbrace{\\Big( \\E[\\Delta Y_i | G_i=2] - \\E[\\Delta Y_i|G_i=\\infty]\\Big)}_{ATT(2,2)} w_\\infty
+\\end{align*}
+Working on the first term, we have that"
+
+eqlist <- list(" & \\E[\\Delta Y_{i2} | G_i=2] - \\E[\\Delta Y_{i2} | G_i=1] \\hspace{300pt}", 
+    "&\\hspace{10pt} = \\E[Y_{i2}(2) - Y_{i1}(\\infty) | G_i=2] - \\E[Y_{i2}(1) - Y_{i1}(1) | G_i=1] ",
+    "&\\hspace{10pt} = \\E[Y_{i2}(2) - Y_{i2}(\\infty) | G_i=2] + \\underline{\\E[Y_{i2}(\\infty) - Y_{i1}(\\infty) | G_i=2]}",
+    "&\\hspace{20pt} - \\Big( \\E[Y_{i2}(1) - Y_{i2}(\\infty) | G_i=1] - \\E[Y_{i1}(1) - Y_{i1}(\\infty) | G_i=1] + \\underline{\\E[Y_{i2}(\\infty) - Y_{i1}(\\infty) | G_i=1]} \\Big)",
+    "&\\hspace{10pt} = \\underbrace{ATT(2,2)}_{\\textrm{causal effect}} - \\underbrace{\\Big(ATT(1,2) - ATT(1,1)\\Big)}_{\\textrm{treatment effect dynamics}}"  )
+
+after <- "Plug this expression back in $\\rightarrow$ "
+
+step_by_step_eq(eqlist=eqlist,
+                before=before,
+                after=after,
+                title=title,
+                count=FALSE)
+```
+
+## TWFE Explanation (cont'd) {visibility="uncounted"}
+
+Plugging the previous expression back in, we have that
+\begin{align*}
+  \alpha = ATT(2,2) + ATT(1,1) w_1 + ATT(1,2)(-w_1)
+\end{align*}
+
+. . .
+
+This is exactly the result in de Chaisemartin and d'Haultfoeuille!  $\alpha$ is equal to a weighted average of $ATT(g,t)$'s, but it is possible that some of the weights can be negative.
+
+. . .
+
+Also, as they point out, a sufficient condition for the weights to be non-negative is: no treatment effect dynamics $\implies ATT(1,1) = ATT(1,2)$ $\overset{\textrm{here}}{\implies} \alpha = ATT(2,2)$.
+
+* In more complicated settings, this would guarantee no negative weights, but the you would still get a hard-to-understand weighted average of $ATT(g,t)'s$.
+
+[[Back](#dCdH)]
+
+## "Simple" Aggregation {#simple visibility="uncounted"}
+
+Consider the following alternative aggregated treatment effect parameter
+\begin{align*}
+  ATT^{simple} := \sum_{t=g}^\T ATT(g,t) \frac{\P(G_i=g | G \in \bar{\mathcal{G}})}{\sum_{t=g}^{\T} \P(G_i=g| G \in \bar{\mathcal{G}})}
+\end{align*}
+Consider imputation so that you have $Y_{i,t}-\hat{Y}_{i,t}(0)$ available in all periods.  This is the $ATT$ parameter that you get by averaging all of those.
+
+. . . 
+
+Relative to $ATT^o$, early treated units get more weight (because we have more $Y_{i,t}-\hat{Y}_{i,t}(0)$ for them).
+
+. . . 
+
+By construction, weights are all positive.  However, they are different from $ATT^o$ weights
+
+
+
+## "Simple" Aggregation {visibility="uncounted"}
+
+```{r echo=FALSE, eval=FALSE}
+att_simple_est <- aggte(attgt, type="simple")$overall.att #-0.0646
+(att_simple_est - attO_est) / attO_est
+
+```{r echo=FALSE, fig.align="center", fig.width=10, fig.height=8}
+# calculate att^simple weights
+wsimple <- att_simple_weights(attgt)
+wsimple <- wsimple[wsimple$G != 0,]
+attsimple_est <- sum(wsimple$wsimplegt*wsimple$attgt)
+wsimple$post <- as.factor(1*(wsimple$TP >= wsimple$G))
+
+# comparison of att^o and att^simple weights
+plot_df <- cbind.data.frame(wsimple, wOgt=wO$wOgt)
+plot_df <- plot_df[plot_df$post==1,]
+plot_df$g.t <- as.factor(paste0(plot_df$G,",",plot_df$TP))
+
+ggplot(plot_df, aes(x=wsimplegt, y=attgt, color=g.t)) +
+  geom_point(shape=15, size=6) +
+  theme_bw() +
+  ylim(c(-.15,.05)) + xlim(c(-.4,.7)) + 
+  geom_point(aes(x=wOgt), shape=18, size=8) +
+  geom_hline(yintercept=0, linewidth=1.5) +
+  geom_vline(xintercept=0, linewidth=1.5) + 
+  xlab("weight")
+```
+
+
+
+## "Simple" Aggregation {visibility="uncounted"}
+
+Besides the violations of parallel trends in pre-treatment periods, these weights are further away from $ATT^o$ than the TWFE regression weights are!
+
+. . . 
+
+In fact, you calculate $ATT^{simple} = -0.065$ (13% larger in magnitude that $ATT^o$)
+
+. . . 
+
+Finally, if you are "content with" non-negative weights, then you can get any summary measure from $-0.019$ (the smallest $ATT(g,t)$) to $-0.13$ (the largest).  This is a wide range of estimates.
+
+. . . 
+
+In my view, the discussion above suggests that clearly stating a target aggregate treatment effect parameter and choosing weights that target that parameter is probably more important than checking for negative weights
+
+[[Back](#weights-comments)]
