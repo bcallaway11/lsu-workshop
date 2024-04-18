@@ -20,11 +20,11 @@ These are the materials for the difference-in-differences workshop at LSU.
 
 Applying DID techniques from parts 1 and 2 to job displacement data.
 
-[[Problems](Exercises/Exercise-1/)]
+[[Problems](Exercises/Exercise-1/exercise1.html)]
 
 [[R Data](Exercises/Exercise-1/job_displacement_data.RData)] &nbsp; &nbsp; [[Stata dta](Exercises/Exercise-1/job_displacement_data.dta)]
 
-[[R Solutions](Exercises/Exercise-1/Solutions/solutions-R)] &nbsp; &nbsp; [[Stata Solutions](Exercises/Exercise-1/Solutions/solutions-stata)]
+[[R Solutions](Exercises/Exercise-1/exercise1_sol.html)] &nbsp; &nbsp; [[Stata Solutions](Exercises/Exercise-1/exercise1_sol_stata.html)]
 
 ## Part 3: More Complicated Treatment Regimes
 
