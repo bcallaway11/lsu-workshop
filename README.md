@@ -24,7 +24,7 @@ Applying DID techniques from parts 1 and 2 to job displacement data.
 
 [[R Data](Exercises/Exercise-1/job_displacement_data.RData)] &nbsp; &nbsp; [[Stata dta](Exercises/Exercise-1/job_displacement_data.dta)]
 
-[[R Solutions](Exercises/Exercise-1/exercise1_sol.html)] &nbsp; &nbsp; [[Stata Solutions](Exercises/Exercise-1/exercise1_sol_stata.html)]
+[[R Solutions](Exercises/Exercise-1/Solutions/solutions-R)] &nbsp; &nbsp; [[Stata Solutions](Exercises/Exercise-1/Solutions/solutions-stata)]
 
 ## Part 3: More Complicated Treatment Regimes
 
@@ -36,11 +36,11 @@ Applying DID techniques from parts 1 and 2 to job displacement data.
 
 DID with a continuous treatment using simulated hospital data.
 
-[[Problems](Exercises/Exercise-2/exercise2a.html)]
+[[Problems](Exercises/Exercise-2/exercise2a)]
 
 [[R Data](Exercises/Exercise-2/medicare1.RData)] &nbsp; &nbsp; [[Stata dta](Exercises/Exercise-2/medicare1.dta)]
 
-[[R Solutions](Exercises/Exercise-2/exercise2a_sol.html)]
+[[R Solutions](Exercises/Exercise-2/Solutions/exercise2a_sol)]
 
 ## Part 4: Alternative Identification Strategies
 
@@ -52,11 +52,11 @@ DID with a continuous treatment using simulated hospital data.
 
 Applying alternative identification strategies to job displacement data.
 
-[Problems](Exercises/Exercise-2/exercise2b.html)
+[Problems](Exercises/Exercise-2/exercise2b)
 
-[R Data](Exercises/Exercise-2/medicare1.RData) &nbsp; &nbsp; [Stata dta](Exercises/Exercise-2/medicare1.dta)
+Data - same as Coding Exercise 1
 
-[R Solutions](Exercises/Exercise-2/exercise2b_sol.html)
+[R Solutions](Exercises/Exercise-2/Solutions/exercise2b_sol)
 
 ## Minimum Wage Data
 
