@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>exercise2a_sol</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="exercise2a_sol_files/libs/clipboard/clipboard.min.js"></script>
+<script src="exercise2a_sol_files/libs/quarto-html/quarto.js"></script>
+<script src="exercise2a_sol_files/libs/quarto-html/popper.min.js"></script>
+<script src="exercise2a_sol_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="exercise2a_sol_files/libs/quarto-html/anchor.min.js"></script>
+<link href="exercise2a_sol_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="exercise2a_sol_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="exercise2a_sol_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="exercise2a_sol_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="exercise2a_sol_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+<section id="exercise-2a-solutions" class="level1">
+<h1>Exercise 2a Solutions</h1>
+<p>For this problem, we are going to use a difference-in-differences identification strategy to estimate the causal effect of a continuous treatment. The data that I am providing below is simulated data, but it has broadly similar features to the data used in the application in Callaway, Goodman-Bacon, and Sant’Anna (2023) which comes from Acemoglu and Finkelstein (2008) which considers the effect of a Medicare policy in the 1980s that reduced reimbursement rates to hospitals specifically for labor expenditures. The outcome variable is the capital-labor ratio, and (roughly) the theoretical argument in their paper is that the policy could alter the capital/labor mix in hospitals, and that these effects could vary across hospitals that had differential exposure to the policy (where exposure is based on the fraction of Medicare patients in the period before the policy was implemented).</p>
+<p>Here is information about installing and loading packages that could be useful in this problem.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"shommazumder/binscatteR"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(binscatteR)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(np)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="additional-code" class="level3">
+<h3 class="anchored" data-anchor-id="additional-code">Additional Code</h3>
+<p>I should mention that code for DID with a continuous treatment is not nearly as well developed as some of the other cases that we have considered previously. Therefore, I’m directly providing some functions that you may find useful below. The first function computes weights from a TWFE regression with a continuous treatment (these are the same weights that we talked about in our session today).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param l a particular value of the treatment for which to compute weights</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param D an nx1 vector containing doses for all units</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>cont_twfe_weights <span class="ot">&lt;-</span> <span class="cf">function</span>(l, D) {</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  wt <span class="ot">&lt;-</span> ( ( <span class="fu">mean</span>(D[D<span class="sc">&gt;=</span>l]) <span class="sc">-</span> <span class="fu">mean</span>(D) ) <span class="sc">*</span> <span class="fu">mean</span>(<span class="dv">1</span><span class="sc">*</span>(D<span class="sc">&gt;=</span>l)) ) <span class="sc">/</span> <span class="fu">var</span>(D)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  wt</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The second function provides a way to nonparametrically estimate causal effect parameters with a continuous treatment.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' nonparametric estimates of att(d|d) and acrt(d|d)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param dy the change in the outcome over time</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param dose the amount of the treatment</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#' @return list( </span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#'            local_effects - data frame containing the dose and estimates of </span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#'              att(dose) and acrt(dose)</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#'            att.overall - an estimate of the overall att</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#'            acrt.overall - an estimate of the overall acrt</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#'          )</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>cont_did <span class="ot">&lt;-</span> <span class="cf">function</span>(dy, dose) {</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># choose bandwidth</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  bw <span class="ot">&lt;-</span> np<span class="sc">::</span><span class="fu">npregbw</span>(<span class="at">formula=</span>dy <span class="sc">~</span> dose,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>                <span class="at">regtype=</span><span class="st">"ll"</span>,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>                <span class="at">bws=</span><span class="fl">1.06</span>,</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>                <span class="at">bwscaling=</span><span class="cn">TRUE</span>,</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>                <span class="at">bandwidth.compute=</span><span class="cn">FALSE</span>)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># estimate att and acrt nonparametrically</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> np<span class="sc">::</span><span class="fu">npreg</span>(<span class="at">bws=</span>bw, <span class="at">gradients=</span><span class="cn">TRUE</span>, <span class="at">exdat=</span>dose)</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># order from smallest to largest dose and drop untreated</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  this_order <span class="ot">&lt;-</span> <span class="fu">order</span>(dose)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  dose <span class="ot">&lt;-</span> dose[this_order]</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  dy <span class="ot">&lt;-</span> dy[this_order]</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  att.d <span class="ot">&lt;-</span> out<span class="sc">$</span>mean[this_order]</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  acrt.d <span class="ot">&lt;-</span> out<span class="sc">$</span>grad[,<span class="dv">1</span>][this_order]</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  att.d <span class="ot">&lt;-</span> att.d[dose<span class="sc">&gt;</span><span class="dv">0</span>]</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  acrt.d <span class="ot">&lt;-</span> acrt.d[dose<span class="sc">&gt;</span><span class="dv">0</span>]</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  att.overall <span class="ot">&lt;-</span> <span class="fu">mean</span>(att.d)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  acrt.overall <span class="ot">&lt;-</span> <span class="fu">mean</span>(acrt.d)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">local_effects=</span><span class="fu">data.frame</span>(<span class="at">dose=</span>dose[dose<span class="sc">&gt;</span><span class="dv">0</span>],</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">att.d=</span>att.d,</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">acrt.d=</span>acrt.d),</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>              <span class="at">att.overall=</span>att.overall,</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>              <span class="at">acrt.overall=</span>acrt.overall))</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="data-and-data-generating-process" class="level3">
+<h3 class="anchored" data-anchor-id="data-and-data-generating-process">Data and Data Generating Process</h3>
+<p>You can load the data by running</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"medicare1.RData"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>It contains the following columns:</p>
+<ul>
+<li><code>hospital_id</code> - the hospital identifier</li>
+<li><code>d_capital_labor_ratio</code> - the change in the capital labor ratio for a hospital from 1983 to 1985, this is the (change in the) outcome variable</li>
+<li><code>medicare_share_1983</code> - the fraction of medicare patients in the hospital in 1983, this is the continuous treatment variable.</li>
+</ul>
+<p>Here are the first few rows of the data</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(medicare1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  hospital_id d_capital_labor_ratio medicare_share_1983
+1           1             1.0801008           0.6575648
+2           2             0.7099469           0.3040419
+3           3             0.8776760           0.6135562
+4           4             0.9431500           0.4825248
+5           5             0.6435963           0.7852173
+6           6             0.9563133           0.4610489</code></pre>
+</div>
+</div>
+<p>Remember this is simulated data, so we can also go ahead and get a sense of what the answers to the questions below “ought” to be (we will see how well various approaches can deliver them below.)</p>
+<p>To start with, I generated the data where <span class="math inline">\(ATT(d|d)\)</span> is given as in the following plot:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>dose <span class="ot">&lt;-</span> <span class="fu">seq</span>(.<span class="dv">01</span>,.<span class="dv">99</span>,<span class="at">by=</span>.<span class="dv">01</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>ATT <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">4</span><span class="sc">*</span>(dose<span class="fl">-.5</span>)<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(<span class="at">ATT=</span>ATT, <span class="at">dose=</span>dose), <span class="fu">aes</span>(<span class="at">x=</span>dose, <span class="at">y=</span>ATT)) <span class="sc">+</span> </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>() <span class="sc">+</span> <span class="fu">ylim</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">2</span>))</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>p</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="exercise2a_sol_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>And this implies that <span class="math inline">\(ACRT(d|d)\)</span> is as is given in the following plot:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>ACRT <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">8</span><span class="sc">*</span>(dose<span class="fl">-.5</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">data.frame</span>(<span class="at">ACRT=</span>ACRT, <span class="at">dose=</span>dose), <span class="fu">aes</span>(<span class="at">x=</span>dose, <span class="at">y=</span>ACRT)) <span class="sc">+</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> <span class="fu">ylim</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">6</span>,<span class="dv">6</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="exercise2a_sol_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>I drew the data so that there is a 10% chance of a hospital being untreated and then, among treated hospitals, I drew the dose from a normal distribution with mean 0.5 and standard deviation of 0.16. Since this is symmetric about 0.5, it implies that <span class="math inline">\(ACRT^O=0\)</span> by construction. We will see how well we can replicate this using different approaches below.</p>
+</section>
+<section id="question-1" class="level3">
+<h3 class="anchored" data-anchor-id="question-1">Question 1</h3>
+<p>Plot a histogram of the the dose. What do you make of this?</p>
+<details>
+<summary>
+Solutions:
+</summary>
+<div style="border-left: 2px solid black; padding-left: 1rem">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>dose <span class="ot">&lt;-</span> medicare1<span class="sc">$</span>medicare_share_1983</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>dy <span class="ot">&lt;-</span> medicare1<span class="sc">$</span>d_capital_labor_ratio</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(<span class="at">dose=</span>dose), <span class="fu">aes</span>(<span class="at">x=</span>dose)) <span class="sc">+</span> </span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>     <span class="fu">geom_histogram</span>()</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>p</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="exercise2a_sol_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The histogram show that a non-trivial fraction of units are untreated while common values of the treatment are around 0.5 and this decreases as we move towards the 0 and 1. This is in line with the data generating process described above.</p>
+</div>
+</details>
+</section>
+<section id="question-2" class="level3">
+<h3 class="anchored" data-anchor-id="question-2">Question 2</h3>
+<p>Make a binscatter plot of the change in the outcome over time with respect to the dose. What do you make of this?</p>
+<details>
+<summary>
+Solutions:
+</summary>
+<div style="border-left: 2px solid black; padding-left: 1rem">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>binnedout <span class="ot">&lt;-</span> <span class="fu">binscatter</span>(<span class="at">data=</span>medicare1, <span class="at">x=</span><span class="st">"medicare_share_1983"</span>, <span class="at">y=</span><span class="st">"d_capital_labor_ratio"</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>binnedout</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$plot_out</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="exercise2a_sol_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+$binned_df
+# A tibble: 20 × 8
+   xbinned   meanoutcome seoutcome      x lower_95 upper_95 sizebin outcomelabel
+   &lt;fct&gt;           &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;int&gt; &lt;chr&gt;       
+ 1 (-0.0009…      0.0128  0.000882 0        0.0111   0.0146     124 d_capital_l…
+ 2 (0.0466,…      0.297   0.0323   0.0673   0.234    0.361        5 d_capital_l…
+ 3 (0.0933,…      0.385   0.0544   0.117    0.278    0.491        2 d_capital_l…
+ 4 (0.14,0.…      0.592   0.0123   0.177    0.568    0.616       10 d_capital_l…
+ 5 (0.187,0…      0.682   0.00811  0.209    0.666    0.698       16 d_capital_l…
+ 6 (0.233,0…      0.760   0.00326  0.256    0.754    0.767       30 d_capital_l…
+ 7 (0.28,0.…      0.825   0.00237  0.310    0.820    0.829       44 d_capital_l…
+ 8 (0.327,0…      0.913   0.00177  0.352    0.909    0.916       61 d_capital_l…
+ 9 (0.373,0…      0.952   0.00138  0.398    0.950    0.955       76 d_capital_l…
+10 (0.42,0.…      0.975   0.00109  0.443    0.973    0.977       96 d_capital_l…
+11 (0.466,0…      1.02    0.000769 0.489    1.02     1.02       121 d_capital_l…
+12 (0.513,0…      0.985   0.000775 0.531    0.984    0.987      113 d_capital_l…
+13 (0.56,0.…      0.982   0.00115  0.582    0.980    0.984       94 d_capital_l…
+14 (0.606,0…      0.924   0.00154  0.630    0.921    0.927       74 d_capital_l…
+15 (0.653,0…      0.873   0.00210  0.670    0.869    0.877       49 d_capital_l…
+16 (0.7,0.7…      0.800   0.00271  0.722    0.794    0.805       45 d_capital_l…
+17 (0.746,0…      0.749   0.00581  0.764    0.738    0.761       21 d_capital_l…
+18 (0.793,0…      0.657   0.00899  0.811    0.640    0.675        8 d_capital_l…
+19 (0.84,0.…      0.541   0.0178   0.865    0.506    0.576        8 d_capital_l…
+20 (0.886,0…      0.424   0.0528   0.931    0.320    0.528        3 d_capital_l…</code></pre>
+</div>
+</div>
+<p>This picture is closely related to the plot of <span class="math inline">\(ATT(d|d)\)</span> provided earlier. The size of the dots also reflects the distribution of the dose that was discussed in Question 1.</p>
+</div>
+</details>
+</section>
+<section id="question-3" class="level3">
+<h3 class="anchored" data-anchor-id="question-3">Question 3</h3>
+<p>Run a regression of the change in the outcome over time on the dose. What do you make of the results?</p>
+<details>
+<summary>
+Solutions:
+</summary>
+<div style="border-left: 2px solid black; padding-left: 1rem">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>twfe <span class="ot">&lt;-</span> <span class="fu">lm</span>(dy <span class="sc">~</span> dose)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(twfe)<span class="sc">$</span>coefficients</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             Estimate Std. Error  t value      Pr(&gt;|t|)
+(Intercept) 0.3273579 0.01715088 19.08695  1.776977e-69
+dose        1.0794670 0.03501614 30.82770 3.804918e-147</code></pre>
+</div>
+</div>
+<p>If we were hoping to estimate <span class="math inline">\(ACRT^O\)</span>, then we did not do it well here: recall that <span class="math inline">\(ACRT^O=0\)</span>, but here the coefficient on the dose is 1.08 and strongly statistically different from 0.</p>
+</div>
+</details>
+</section>
+<section id="question-4" class="level3">
+<h3 class="anchored" data-anchor-id="question-4">Question 4</h3>
+<p>Use the <code>cont_did</code> function provided above to estimate the <span class="math inline">\(ATT(d|d)\)</span>, <span class="math inline">\(ACRT(d|d)\)</span>, <span class="math inline">\(ATT\)</span>, and <span class="math inline">\(ACRT^O\)</span>. Plot <span class="math inline">\(ATT(d|d)\)</span> and <span class="math inline">\(ACRT(d|d)\)</span> as functions of the dose and provide estimates of <span class="math inline">\(ATT\)</span> and <span class="math inline">\(ACRT^O\)</span>.</p>
+<details>
+<summary>
+Solutions:
+</summary>
+<div style="border-left: 2px solid black; padding-left: 1rem">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>cont_res <span class="ot">&lt;-</span> <span class="fu">cont_did</span>(dy, dose)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>cont_res<span class="sc">$</span>att.overall</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.9032416</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>cont_res<span class="sc">$</span>acrt.overall</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.04110219</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>plot_df <span class="ot">&lt;-</span> cont_res<span class="sc">$</span>local_effects</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(plot_df) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"dose"</span>, <span class="st">"att"</span>, <span class="st">"acrt"</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(plot_df, <span class="fu">aes</span>(<span class="at">x=</span>dose, att)) <span class="sc">+</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept=</span><span class="dv">0</span>, <span class="at">color=</span><span class="st">"red"</span>, <span class="at">linetype=</span><span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="exercise2a_sol_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(plot_df, <span class="fu">aes</span>(<span class="at">x=</span>dose, acrt)) <span class="sc">+</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept=</span><span class="dv">0</span>, <span class="at">color=</span><span class="st">"red"</span>, <span class="at">linetype=</span><span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="exercise2a_sol_files/figure-html/unnamed-chunk-16-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>These estimates are in line with the data generating process that we described above. Note also that <code>acrt.overall</code> is much closer to 0 than what we got with the TWFE regression.</p>
+</div>
+</details>
+</section>
+<section id="question-5" class="level3">
+<h3 class="anchored" data-anchor-id="question-5">Question 5</h3>
+<p>The following plot provide an estimate of the density of the dose. How is this plot related to the estimate of <span class="math inline">\(ACRT^O\)</span> from Question 4?</p>
+<details>
+<summary>
+Solutions:
+</summary>
+<div style="border-left: 2px solid black; padding-left: 1rem">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">#-----------------------------------------------------------------------------</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>dL <span class="ot">&lt;-</span> <span class="fu">min</span>(dose[dose<span class="sc">&gt;</span><span class="dv">0</span>])</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>dU <span class="ot">&lt;-</span> <span class="fu">max</span>(dose)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># density of the dose</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>dose_grid <span class="ot">&lt;-</span> <span class="fu">seq</span>(dL, dU, <span class="at">length.out=</span><span class="dv">100</span>)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>frq_weights_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(<span class="at">dose=</span>dose[dose<span class="sc">&gt;</span><span class="dv">0</span>]), <span class="fu">aes</span>(<span class="at">x=</span>dose)) <span class="sc">+</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">colour =</span> <span class="st">"darkblue"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="fu">c</span>(<span class="fu">min</span>(dose_grid), <span class="fu">max</span>(dose_grid)))<span class="sc">+</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Density weights"</span>) <span class="sc">+</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Dose"</span>) <span class="sc">+</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">3</span>)) <span class="sc">+</span> </span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title=</span><span class="st">"Density of dose"</span>)</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>frq_weights_plot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="exercise2a_sol_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The density of the dose effectively serves as the weights on <span class="math inline">\(ACRT(d|d)\)</span> to deliver an estimate of <span class="math inline">\(ACRT^O\)</span>. Here you can see that values of the dose near 0.5 get the most weights — this makes sense as these doses around 0.5 are more common than doses closer to 0 or 1.</p>
+</div>
+</details>
+</section>
+<section id="question-6" class="level3">
+<h3 class="anchored" data-anchor-id="question-6">Question 6</h3>
+<p>Use the function <code>cont_twfe_weights</code> provided above to create a plot of the TWFE weights as a function of the dose. How is this plot related to the result from Question 3?</p>
+<details>
+<summary>
+Solutions:
+</summary>
+<div style="border-left: 2px solid black; padding-left: 1rem">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>twfe_weights <span class="ot">&lt;-</span> <span class="fu">sapply</span>(dose_grid, cont_twfe_weights, <span class="at">D=</span>dose)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>plot_df <span class="ot">&lt;-</span> <span class="fu">cbind.data.frame</span>(twfe_weights, dose_grid)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>twfe_weights_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data=</span>plot_df,</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>                            <span class="at">mapping=</span><span class="fu">aes</span>(<span class="at">x =</span> dose_grid,</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">y =</span> twfe_weights)) <span class="sc">+</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">colour =</span> <span class="st">"darkblue"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="fu">c</span>(<span class="fu">min</span>(dose_grid),</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>         <span class="fu">max</span>(dose_grid)))<span class="sc">+</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"TWFE weights"</span>) <span class="sc">+</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Dose"</span>) <span class="sc">+</span></span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">mean</span>(dose),</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>             <span class="at">colour=</span><span class="st">"black"</span>,</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>             <span class="at">linewidth =</span> <span class="fl">0.5</span>,</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>             <span class="at">linetype =</span> <span class="st">"dotted"</span>) <span class="sc">+</span></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">3</span>)) <span class="sc">+</span></span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title=</span><span class="st">"TWFE weights"</span>)</span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>twfe_weights_plot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="exercise2a_sol_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>These weights explain why we get so much different results from the TWFE regression relative to the nonparametric approach. The TWFE regression puts substantially more weight on low values of the dose. We know that the <span class="math inline">\(ACRT(d|d)\)</span> was larger for small values of the dose. Therefore, if we put more weight on those values of the dose, then we will get a larger estimate of the summary measure — this is exactly what is happening with the TWFE regression.</p>
+</div>
+</details>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
