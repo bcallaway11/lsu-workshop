@@ -4,47 +4,53 @@ These are the materials for the difference-in-differences workshop at LSU.
 
 ## Part 1: Introduction to Difference-in-Differences
 
-[Slides](DID-Introduction.html)
+[[Slides](DID-Introduction.html)]
 
-[Code](DID-Introduction.R)
+[[Code](DID-Introduction.R)]
 
 
 ## Part 2: Relaxing Parallel trends
 
-[Slides](Relaxing-Parallel-Trends.html)
+[[Slides](Relaxing-Parallel-Trends.html)]
 
-[Code](Relaxing-Parallel-Trends.R) &nbsp; &nbsp; [Honest DID Code](honest_did.R)
+[[Code](Relaxing-Parallel-Trends.R)] &nbsp; &nbsp; [[Honest DID Code](honest_did.R)]
 
 
 ## Coding Exercise 1
 
-[Problems](Exercises/Exercise-1/exercise1.html)
+Applying DID techniques from parts 1 and 2 to job displacement data.
 
-[R Data](Exercises/Exercise-1/job_displacement_data.RData) &nbsp; &nbsp; [Stata dta](Exercises/Exercise-1/job_displacement_data.dta)
+[[Problems](Exercises/Exercise-1/exercise1.html)]
 
-[R Solutions](Exercises/Exercise-1/exercise1_sol.html) &nbsp; &nbsp; [Stata Solutions](Exercises/Exercise-1/exercise1_sol_stata.html)
+[[R Data](Exercises/Exercise-1/job_displacement_data.RData)] &nbsp; &nbsp; [[Stata dta](Exercises/Exercise-1/job_displacement_data.dta)]
+
+[[R Solutions](Exercises/Exercise-1/exercise1_sol.html)] &nbsp; &nbsp; [[Stata Solutions](Exercises/Exercise-1/exercise1_sol_stata.html)]
 
 ## Part 3: More Complicated Treatment Regimes
 
-[Slides](More-Complicated-Treatment-Regimes.html)
+[[Slides](More-Complicated-Treatment-Regimes.html)]
 
-[Code](More-Complicated-Treatment-Regimes.R)
+[[Code](More-Complicated-Treatment-Regimes.R)]
 
 ## Coding Exercise 2
 
-[Problems](Exercises/Exercise-2/exercise2a.html)
+DID with a continuous treatment using simulated hospital data.
 
-[R Data](Exercises/Exercise-2/medicare1.RData) &nbsp; &nbsp; [Stata dta](Exercises/Exercise-2/medicare1.dta)
+[[Problems](Exercises/Exercise-2/exercise2a.html)]
 
-[R Solutions](Exercises/Exercise-2/exercise2a_sol.html) 
+[[R Data](Exercises/Exercise-2/medicare1.RData)] &nbsp; &nbsp; [[Stata dta](Exercises/Exercise-2/medicare1.dta)]
+
+[[R Solutions](Exercises/Exercise-2/exercise2a_sol.html)]
 
 ## Part 4: Alternative Identification Strategies
 
-[Slides](Alternative-Identification-Strategies.html)
+[[Slides](Alternative-Identification-Strategies.html)]
 
-[Code](Alternative-Identification-Strategies.R)
+[[Code](Alternative-Identification-Strategies.R)]
 
 ## Coding Exercise 3
+
+Applying alternative identification strategies to job displacement data.
 
 [Problems](Exercises/Exercise-2/exercise2b.html)
 
