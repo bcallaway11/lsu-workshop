@@ -9,6 +9,7 @@ author:
 knitr:
   opts_chunk:
     echo: true
+bibliography: refs.bib
 ---
 
 ## Introduction
@@ -46,7 +47,7 @@ $\newcommand{\E}{\mathbb{E}}
 
 * Part 1: [DID] with staggered treatment adoption
 
-* Part 2: [DID] relax parallel trends by including covariates 
+* Part 2: [DID] relax parallel trends
 
 * Part 3: [DID] allow for more complicated treatment regimes
 
@@ -110,7 +111,7 @@ $$Y_{i,t}(0) = \theta_t + \eta_i + e_{i,t}$$
 
 . . .
 
-[Additional references:]{.alert} Heckman and Robb (1985), Heckman, Ichimura, and Todd (1997), Athey and Imbens (2006), Blundell and Costa Dias (2009), Chabe-Ferret (2015), Ghanem, Sant'Anna, and Wuthrich (2022), and Marx, Tamer, and Tang (2022) all provide connections between models and different panel data approaches to causal inference
+[Additional references:]{.alert} @heckman-robb-1985, @heckman-ichimura-todd-1997, @athey-imbens-2006, @blundell-dias-2009, @chabe-2015, @ghanem-santanna-wuthrich-2022, @marx-tamer-tang-2022 all provide connections between models and different panel data approaches to causal inference
 
 ## Introduction to Lagged Outcome Unconfoundedness
 
@@ -177,7 +178,7 @@ $$ATT=\E[Y_{i,t=2} | D_i=1] - \E\Big[\underbrace{\E[ Y_{i,t=2}(0) | Y_{i,t=1}(0)
 
 * Or you can bring out the heavy artillery: nonparametric 1st step, weighting estimators, doubly robust estimators, machine learning etc.
 
-## LOU Identification of $ATT(g,t)$
+## LOU Identification of $ATT(g,t)$ {#lou-identification-of-attgt}
 
 <br>
 
@@ -201,7 +202,7 @@ Applying a similar argument as before recursively (and noting that to get this a
   ATT(g,t) = \E[Y_{i,t}|G_i=g] - \E\Big[\E[Y_{i,t} | Y_{i,g-1}, U_i=1] \Big| G_i=g\Big]
 \end{align*}
 
-[[longer explanation](Alternative-Identification-Strategies.html#/lo-identification-explanation)]
+[[longer explanation](#lou-identification-explanation)]
 
 ## Minimum Wage Example
 
@@ -254,7 +255,7 @@ ggpte(lo_res)
 
 ## Introduction to Change-in-Changes
 
-The idea of change-in-changes comes from Athey and Imbens (2006) and builds on work on estimating non-separable production function models.  They consider the case where
+The idea of change-in-changes comes from @athey-imbens-2006 and builds on work on estimating non-separable production function models.  They consider the case where
 \begin{align*}
   Y_{i,t}(0) = h_t(U_{i,t})
 \end{align*}
@@ -295,7 +296,7 @@ where $Q_{Y_{i,t}(0)|U_i=1}(\tau)$ is the $\tau$-th quantile of $Y_{i,t}(0)$ for
 
 . . .
 
-* [As an interesting side-comment, this is derived in Athey and Imbens (2006), way before recent work on group-time average treatment effects, and it is pretty much exactly analogous to the "first step" that we have been emphasizing]
+* [As an interesting side-comment, this is derived in @athey-imbens-2006, way before recent work on group-time average treatment effects, and it is pretty much exactly analogous to the "first step" that we have been emphasizing]
 
 ::: {.notes}
 
@@ -432,7 +433,7 @@ To allow for $F_t$ to change arbitrarily over time is harder...
 . . .
 
 
-<span class="alert">Example 3: </span> Interactive fixed effects models also provide a connection to "large-T" approaches such as synthetic control and synthetic DID (Abadie, Diamond, and Hainmueller (2010), Arkhangelsky et al. (2021))
+<span class="alert">Example 3: </span> Interactive fixed effects models also provide a connection to "large-T" approaches such as synthetic control and synthetic DID (@abadie-diamond-hainmueller-2010, @arkhangelsky-etal-2021)
 
 * e.g., one of the motivations of the SCM in ADH-2010 is that (given large-T) constructing a synthetic control can balance the factor loadings in an interactive fixed effects model for untreated potential outcomes
 
@@ -455,9 +456,9 @@ Example: If $\lambda_i$ is "ability" and $F_t$ is increasing over time, then (ev
 
 There are a lot of ideas.  Probably the most prominent idea is to directly estimate the model for untreated potential outcomes and impute
 
-* See Xu (2017) and Gobillon and Magnac (2018) for substantial detail on this front
+* See @xu-2017, @gobillon-magnac-2016, and @hsiao-zhou-2019 for substantial detail on this front
 
-* For example, Xu (2017) uses Bai (2009) principal components approach to estimate the model.  This is a bit different in spirit from what we have been doing before as this argument requires the number of time periods to be "large"
+* For example, @xu-2017 uses @bai-2009 principal components approach to estimate the model.  This is a bit different in spirit from what we have been doing before as this argument requires the number of time periods to be "large"
 
 
 
@@ -537,15 +538,15 @@ There are a number of different ideas here:
 
 * Make additional assumptions ruling out serial correlation in $e_{i,t}$ $\implies$ can use lags of outcomes as instruments:
 
-    * But this is seen as a strong assumption in many applications (Bertrand, Duflo, Mullainathan (2004))
+    * But this is seen as a strong assumption in many applications (@bertrand-duflo-mullainathan-2004)
     
 . . .
     
-* Alternatively can introduce covariates and make auxiliary assumptions about them (Callaway and Karami (2023), Brown and Butts (2023), and Brown, Butts, and Westerlund (2023))
+* Alternatively can introduce covariates and make auxiliary assumptions about them (@callaway-karami-2023, @brown-butts-2023, @brown-butts-westerlund-2023)
 
 . . .
     
-* However, it turns out that, with staggered treatment adoption, you can recover $ATT(3,3)$ essentially for free (Callaway and Tsyawo (2023)).
+* However, it turns out that, with staggered treatment adoption, you can recover $ATT(3,3)$ essentially for free (@callaway-tsyawo-2023).
 
 
 
@@ -650,19 +651,19 @@ I want to emphasize the high-level thought process one last time for using/inven
 
 <span class="alert">Contact Information: </span>brantly.callaway@uga.edu
 
-<span class="alert">Code and Slides: </span> [Available here](https://github.com/Mixtape-Sessions/Frontiers-in-DID)
+<span class="alert">Code and Slides: </span> [Available here](https://github.com/bcallaway11/lsu-workshop)
 
 
 <span class="alert">Papers:</span>
 
-* Callaway (2023, *Handbook of Labor, Human Resources and Population Economics*), [[published version](https://link.springer.com/referenceworkentry/10.1007/978-3-319-57365-6_352-1)] &nbsp; [[draft version](https://bcallaway11.github.io/files/Callaway-Chapter-2022/main.pdf)]; the draft version is ungated and very similar to the published version.
+* @callaway-2023, *Handbook of Labor, Human Resources and Population Economics*), [[published version](https://link.springer.com/referenceworkentry/10.1007/978-3-319-57365-6_352-1)] &nbsp; [[draft version](https://bcallaway11.github.io/files/Callaway-Chapter-2022/main.pdf)]; the draft version is ungated and very similar to the published version.
 
 * Today is also based on the not-yet-made-publicly available manuscript Baker, Callaway, Cunningham, Goodman-Bacon, and Sant'Anna (be on the lookout for it very soon)
 
 
 # Appendix {visibility="uncounted"}
 
-## LOU Identification Explanation {visibility="uncounted"}
+## LOU Identification Explanation {#lou-identification-explanation visibility="uncounted"}
 
 Simplest possible non-trivial example: $ATT(g=2,t=3)$.  
 
@@ -690,4 +691,9 @@ Thus, we have that
 \end{align*}
 done.
 
-[[Back](Alternative-Identification-Strategies.html#/lo-identification-of-attgt)]
+[[Back](#lou-identification-of-attgt)]
+
+# References {visibility="uncounted"}
+
+::: {#refs}
+:::

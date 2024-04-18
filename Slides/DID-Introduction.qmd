@@ -1,6 +1,6 @@
 ---
 title: "Modern Approaches to Difference-in-Differences"
-subtitle: "Session 1: Introduction"
+subtitle: "Session 1: Introduction to Difference-in-Differences"
 format: clean-revealjs
 author:
   - name: Brantly Callaway
@@ -9,13 +9,14 @@ affiliations: University of Georgia
 knitr:
   opts_chunk:
     echo: true
+bibliography: refs.bib
 ---
 
 ```{r echo=FALSE}
 library(revealEquations)
 ```
 
-## Plan for Today
+## Plan for the Workshop
 $\newcommand{\E}{\mathbb{E}}
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\var}{\mathrm{var}}
@@ -30,16 +31,23 @@ $\newcommand{\E}{\mathbb{E}}
 \newcommand{\indicator}[1]{ \mathbf{1}\{#1\} }
 \newcommand{\T}{T}$
 
-<br>
+1. Introduction to Difference-in-Differences
 
-1. Intro to DID & Textbook 2 Period Case
+    1. DID Basics in 2 Period Case
 
-2. Staggered Treatment Adoption
-   * Issues with Traditional Regression Approaches
-   * New Approaches
+    2. Staggered Treatment Adoption
+       * Issues with Traditional Regression Approaches
+       * New Approaches
    
-3. Application/Code for Minimum Wage Policy
+    3. Application/Code for Minimum Wage Policy
+    
+    4. Inference
 
+2. Relaxing the Parallel Trends Assumption
+
+3. Dealing with More Complicated Treatment Regimes
+
+4. Alternative Identification Strategies
 
 ## Additional Resources
 
@@ -52,9 +60,11 @@ $\newcommand{\E}{\mathbb{E}}
 
 <span class="alert">References: </span> 
 
-  * Callaway (2023, *Handbook of Labor, Human Resources and Population Economics*)
+  * @callaway-2023, *Handbook of Labor, Human Resources and Population Economics*
   
-  * Baker, Callaway, Cunningham, Goodman-Bacon, Sant'Anna (2024, draft posted very soon)
+  * Baker, Callaway, Cunningham, Goodman-Bacon, Sant'Anna (2024), draft posted very soon
+
+<!--
   
 . . .
 
@@ -66,7 +76,7 @@ $\newcommand{\E}{\mathbb{E}}
 
   * Alternative identification strategies (e.g., conditioning on lagged outcome, change-in-changes, others)
   
-
+-->
 
 
 <!--
@@ -266,7 +276,7 @@ The <span style="color:red">second term</span> is how outcomes *would have chang
 * This is not directly observed in the data $\implies$ we need to make identifying assumptions
 
 * There are many possibilities here:
-    2. <span class="alert-blue">Lagged outcome unconfoundedness: </span> $\color{red}{\E[Y_{i,t=2}(0) - Y_{i,t=1}(0) | G_i=1]} = \E\Big[ \E[Y_{i,t=2}(0) | Y_{i,t=1}, D=0] - Y_{i,t=1}(0) \Big| G_i=1\Big]$
+    2. <span class="alert-blue">Lagged outcome unconfoundedness: </span> $\color{red}{\E[Y_{i,t=2}(0) - Y_{i,t=1}(0) | G_i=1]} = \E\Big[ \E[Y_{i,t=2}(0) | Y_{i,t=1}, G_i=0] - Y_{i,t=1}(0) \Big| G_i=1\Big]$
 
 ## How to Use Panel Data to Learn about $ATT$ {visibility="uncounted"}
 
@@ -514,7 +524,7 @@ To understand the discussion later, it is also helpful to think of $ATT(g,t)$ as
 ::: {.fragment .column}
 [Event Study]{.alert}
 \begin{align*}
-  ATT^{es}(e) = \sum_{g \in \bar{\mathcal{G}}} w^{es}(g,e) ATT(g,g+e) 
+  ATT^{es}(e) = \sum_{g \in \mathcal{G}_e} w^{es}(g,e) ATT(g,g+e) 
 \end{align*}
 :::
 
@@ -532,7 +542,7 @@ To understand the discussion later, it is also helpful to think of $ATT(g,t)$ as
 ::: {.fragment .column}
 <p style="margin-left:20px;">where</p>
 \begin{align*}
-  w^{es}(g,e) = \indicator{g \in \mathcal{G}_e} \P(G_i=g|G\in \mathcal{G}_e) 
+  w^{es}(g,e) = \P(G_i=g|G\in \mathcal{G}_e) 
 \end{align*}
 :::
 
@@ -618,7 +628,7 @@ One main contribution of recent work on DID has been to diagnose and understand 
 
 . . .
 
-<span class="alert-blue">Goodman-Bacon (2021) intuition:</span> $\alpha$ "comes from" comparisons between the path of outcomes for units whose <span class="alert">treatment status changes</span> relative to the path of outcomes for units whose <span class="alert">treatment status stays the same</span> over time.
+<span class="alert-blue">@goodman-bacon-2021 intuition:</span> $\alpha$ "comes from" comparisons between the path of outcomes for units whose <span class="alert">treatment status changes</span> relative to the path of outcomes for units whose <span class="alert">treatment status stays the same</span> over time.
 
 . . .
 
@@ -629,7 +639,7 @@ One main contribution of recent work on DID has been to diagnose and understand 
 
 ## What Can Go Wrong with TWFE Regression? {#dCdH}
 
-<span class="alert-blue">de Chaisemartin and d'Haultfoeuille (2020) intuition:</span> You can write $\alpha$ as a weighted average of $ATT(g,t)$
+<span class="alert-blue">@chaisemartin-dhaultfoeuille-2020 intuition:</span> You can write $\alpha$ as a weighted average of $ATT(g,t)$
 
 First, a decomposition:
 \begin{align*}
@@ -667,21 +677,21 @@ Second, under parallel trends:
 
 <span class="alert">We'll discuss:</span>
 
-1. Callaway and Sant'Anna (2021), R: `did`, Stata: `csdid`, Python: `csdid`
+1. @callaway-santanna-2021, R: `did`, Stata: `csdid`, Python: `csdid`
 
-2. Sun and Abraham (2021), R: `fixest`, Stata: `eventstudyinteract`
+2. @sun-abraham-2021, R: `fixest`, Stata: `eventstudyinteract`
 
-3. Wooldridge (2021), R: `etwfe`, Stata: `JWDID`
+3. @wooldridge-2021, R: `etwfe`, Stata: `JWDID`
 
-4. Gardner et al. (2023) / Borusyak, Jaravel, Spiess (2023), R: `did2s`, Stata: `did2s` and `did_imputation`
+4. @gardner-thakral-to-yap-2023 / @borusyak-jaravel-spiess-2023, R: `did2s`, Stata: `did2s` and `did_imputation`
 
 . . .
 
 <span class="alert">Not including:</span>
 
-1. "Stacked Regression" (Cengiz, Dube, Lindner, and Zipperer (2019) and Dube, Girardi, Jorda, and Taylor (2023)), Stata: `stackedev`
+1. "Stacked Regression" (@cengiz-dube-lindner-zipperer-2019, @dube-girardi-jorda-taylor-2023), Stata: `stackedev`
 
-2. de Chaisemartin and d'Haultfoeuille (2020), R: `DIDmultiplegt`, Stata: `did_multiplegt`
+2. @chaisemartin-dhaultfoeuille-2020, R: `DIDmultiplegt`, Stata: `did_multiplegt`
 
 :::{.notes}
 
@@ -692,7 +702,7 @@ Second, under parallel trends:
 :::
 
 ::: {.fragment}
-See Baker, Larcker, Wang (2022) and Callaway (2023) for more substantially more details.
+See @baker-larcker-wang-2022 and @callaway-2023 for more substantially more details.
 :::
 
 
@@ -926,8 +936,7 @@ $$ATT(g,t) = \E[Y_{i,t} - Y_{g-2} | G_i=g] - \E[Y_{i,t} - Y_{g-2} | U_i=1]$$
 
 -->
 
-
-# Part 3 :Empirical Example {visibility="uncounted"}
+# Part 3: Empirical Example {visibility="uncounted"}
 
 ## Empirical Example: Minimum Wages and Employment
 
@@ -1040,7 +1049,7 @@ ggdid(attgt, ylim=c(-.2,.05))
 
 
 
-## Compute $ATT^o$
+## Compute $ATT^o$ {#compute-atto}
 
 ```{r}
 attO <- did::aggte(attgt, type="group")
@@ -1164,11 +1173,17 @@ One more comment: there is a lot concern about [negative weights]{.alert} (both 
 :::
 
 
+## Discussion 
+
+<center><h1>Pros and Cons of New Approaches Relative to Traditional TWFE Regressions</h1></center>
+
+<!--
+
 ## Conclusion
 
 <br>
 
-<center><h1>Should You Use These New Approaches?</h1></center>
+<center><h1>Should You Use These New Approaches?</h1></center> -->
 
 [Not a Panacea]{.alert}
 
@@ -1208,6 +1223,168 @@ One more comment: there is a lot concern about [negative weights]{.alert} (both 
 
 :::
 
+# Part 4: Inference {visibility="uncounted"}
+
+## Introduction
+
+There are a number of complications that can arise for inference in DID settings:
+
+1. Serial correlation
+
+2. Fixed population inference
+
+3. Clustered treatment assignment
+
+4. Multiple hypothesis testing
+
+5. Small number of treated units
+
+. . .
+
+We will walk through a few leading examples:
+
+1. Unit-level treatments, units sampled from a large population.
+
+    * Example: Job displacement
+    
+2. Aggregate treatments, underlying unit-level data available
+
+    * Example: State level policies studied with individual- or county-level data.
+    
+3. Aggregate treatments, aggregate data available
+
+    * Example: State-level policy, studied with state-level data
+    
+    * Also: try to answer the question what happens if you observe the entire population?
+
+
+## Serial Correlation
+
+Probably the most common inference issue in DID settings is serial correlation.
+
+Sample consists of:
+
+$$\{Y_{i,1}, Y_{i,2}, \ldots, Y_{i,T}, D_{i,1}, D_{i,2}, \ldots D_{i,T} \}_{i=1}^n$$
+
+which are iid across units, drawn from a "super-population", and where the number of units in each group is "large".  This is a common sampling scheme in panel data applications (e.g., job displacement).
+
+This sampling scheme allows for outcomes to be arbitrarily correlated across time periods.
+
+$$Y_{i,t}(0) = \theta_t + \eta_i + e_{i,t}$$
+
+* Ignoring serial correlation can lead to incorrect standard errors and confidence intervals (@bertrand-duflo-mullainathan-2004).  
+
+* Instead of modeling the serial correlation, it is most common to cluster at the unit level (i.e., allow for arbitrary serial correlation within units).  
+
+* Most (all?) software implementations can accommodate serial correlation (often by default).
+
+## Fixed Population Inference
+
+The previous discussion has emphasized traditional sampling uncertainty arising from drawing a sample from an underlying super-population.  
+
+In many DID applications, we observe the entire population of interest (e.g., all 50 states).
+
+* Does this means that we "know" the $ATT$?...probably not.
+
+## Fixed Population Inference
+
+One possibility is to condition on (i.e., treat as fixed/non-random) $(G_i, \theta_t, \eta_i)$ while treating as random $e_{i,t}$.
+
+* Intuition: repeated sampling thought experiment where we redraw $e_{i,t} \sim (\mu_i, \sigma^2_i)$ for each unit $i$ and time period $t$ while unit fixed effects, time fixed effects, and treatment status are held fixed.
+
+* Adjusted target parameter: mean of finite sample $ATT$ across repeated samples $$ATT(g,t) := \frac{1}{n_g} \sum_{G_i=g} \E[Y_{i,t} - Y_{i,t}(0) | G_i=g]$$
+
+* Adjusted parallel trends: mean of finite sample parallel trends across repeated samples $$\frac{1}{n_g} \sum_{G_i=g} \E[\Delta Y_{i,t}(0) | G_i=g] - \frac{1}{n_\infty} \sum_{G_i=\infty} \E[\Delta Y_{i,t}(0) | U_i=1]$$
+
+$\implies$ somewhat different interpretation, but use same $\widehat{ATT}$ and constructing unconditional standard errors (i.e., same as before) can be conservative in this case.  See @borusyak-jaravel-spiess-2023, for example.
+
+## Clustered Treatment Assignment
+
+Many DID applications have clustered treatment assignment---all units within the same cluster (e.g., a state) have the same treatment status/timing.
+
+The most common approach in this setting is to cluster at the level of the treatment.
+
+* When we additionally cluster at the unit level (to allow for serial correlation), this is often referred to as two-way clustering.  Most software implementations readily allow for this.
+
+To rationalize conducting inference in this way typically requires a large number of both treated and untreated clusters.
+
+* This rules out certain leading applications such as the @card-krueger-1994 minimum wage study, where the only clusters are New Jersey and Pennsylvania.
+
+## Clustered Treatment Assignment
+
+Can we conduct inference in cases where there are only two clusters (but we observe underlying data)?  
+
+* Yes, but it may require additional assumptions.
+
+* Let's start with the setting where there are exactly two clusters.  Then (for simplicity just focusing on untreated potential outcomes),
+\begin{align*}
+  Y_{i,j,t}(0) &= \theta_t + \eta_i + e_{i,j,t} \\
+  &= \theta_t + \eta_i + \underbrace{\nu_{j,t} + \epsilon_{i,j,t}}
+\end{align*}
+where $\nu_{j,t}$ is a cluster-specific time-varying error term and $\epsilon_{i,j,t}$ are idiosyncratic, time-varying unobservables (possibly serially correlated but independent across units).
+
+* $\nu_{j,t}$ is often viewed as a common cluster-specific shock that affects all units in the cluster (e.g., some other state-level policy).
+
+* For inference with two clusters, we need $\nu_{j,t}=0$.  
+    * Without this condition, parallel trends would be violated.
+    * If holds, then we can cluster at the unit-level rather than the cluster-level $\implies$ possible to conduct inference.
+    
+
+## Comparing Different Strategies
+
+Suppose that we are studying a policy that is implemented in a few states.  
+
+[Option 1: Include a large number of states, cluster at state-level]{.alert-blue}
+
+* For clustering: We may only need the weaker condition that $\E[\nu_{j,t} | G_i] = 0$.
+
+* For identification: less robust to small violations of parallel trends.
+
+[Option 2: Only include a few similar states, cluster at unit-level]{.alert-blue}
+
+* For clustering: We need the stronger condition that $\nu_{j,t}=0$.
+
+* For identification: possibly more robust to small violations of parallel trends.
+
+In my view, there is a fairly strong case for (in many applications) using tighter comparisons with a smaller number of clusters while arguing that $\nu_{j,t}=0$ by a combination of
+
+* researcher legwork
+
+* pre-testing
+
+## Few Treated Clusters with Aggregate Data
+
+The discussion above supposed that we had access to underlying unit-level data.  What if we only have access to aggregate data, such as state-level data, and the number of treated clusters is small (e.g., 1 treated cluster)?  
+
+In this case, if there is one treated unit, we can often come up with an unbiased (though not consistent) estimator of the $ATT$.
+
+For inference, there are a number of ideas, often involving some kind of permutation test
+
+* See, for example, @conley-taber-2011, @ferman-2019, @hagemann-2019, @roth-santanna-2023b for examples
+
+* These approaches often require auxiliary assumptions such as restrictions on heteroskedasiticity or differences in cluster sizes
+
+## Multiple Hypothesis Testing
+
+If you report multiple hypothesis tests and/or confidence intervals---e.g., an event study---it's a good idea to make an adjustment for multiple hypothesis testing.
+
+[sup-t confidence band]{.alert-blue}---construct confidence intervals of the form
+$$\Big[\widehat{ATT}^{es}(e) \pm \hat{c}_{1-\alpha/2} \textrm{s.e.}\big(\widehat{ATT}^{es}(e)\big) \Big]$$
+but instead of choosing the critical value as a quantile of the normal distribution, choose a (slightly) larger critical value that accounts for the fact that you are testing multiple hypotheses.
+
+* Typically, an appropriate choice for the critical value to ensure the correct (uniform) coverage requires resampling methods.
+
+* The reason for this is that the appropriate critical value depends on the joint distribution of $\sqrt{n}(\widehat{ATT}^{es}(e) - ATT^{es}(e))$ across all $e$, and these are generally not independent of each other.
+
+* That said, this is not too difficult in practice, and is a default option in the `did` package.
+
+
+## Further Reading on Clustering
+
+* @conley-goncalves-hansen-2018 - on clustering in general
+
+* @roth-santana-bilinski-poe-2023 - on clustering in the context of DID
+
 
 # Appendix {visibility="uncounted"}
 
@@ -1218,7 +1395,7 @@ attes <- aggte(attgt, type="dynamic")
 ggdid(attes)
 ```
 
-[Back](DID-Introduction.html#/compute-atto)
+[Back](#compute-atto)
 
 ## How do these results work? {#twfe-explanation visibility="uncounted"}
 
@@ -1379,3 +1556,8 @@ Finally, if you are "content with" non-negative weights, then you can get any su
 In my view, the discussion above suggests that clearly stating a target aggregate treatment effect parameter and choosing weights that target that parameter is probably more important than checking for negative weights
 
 [[Back](#weights-comments)]
+
+# References {visibility="uncounted"}
+
+::: {#refs}
+:::

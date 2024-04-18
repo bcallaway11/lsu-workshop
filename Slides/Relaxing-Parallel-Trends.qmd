@@ -9,11 +9,30 @@ author:
 knitr:
   opts_chunk:
     echo: true
+bibliography: 
+  - refs.bib
+  - labor_refs.bib
 ---
 
 ```{r echo=FALSE}
 library(revealEquations)
 ```
+
+## Outline
+
+1. Introduction to Difference-in-Differences
+
+2. [Relaxing the Parallel Trends Assumption]{.alert}
+
+    1. Including Covariates in the Parallel Trends Assumption
+    
+    2. Dealing with Violations of Parallel Trends
+
+3. Dealing with More Complicated Treatment Regimes
+
+4. Alternative Identification Strategies
+
+# Part 1: Including Covariates in the Parallel Trends Assumption {visibility="uncounted"}
 
 ## Covariates in the Parallel Trends Assumption
 
@@ -45,7 +64,7 @@ $\newcommand{\E}{\mathbb{E}}
 \newcommand{\indicator}[1]{ \mathbf{1}\{#1\} }$
 
 
-## Outline
+## Plan: Covariates in the Parallel Trends Assumption
 
 <br>
 
@@ -151,11 +170,11 @@ $\implies$ differencing out unit fixed effects can have implications about what 
 
 Even if none of the previous 4 issues apply, $\alpha$ will still be equal to a weighted average of underlying (conditional-on-covariates) treatment effect parameters.
 
-  * The weights can be negative, and suffer from "weight reversal" (similar to the issue discussed in Sloczynski (2020) in the context of cross-sectional regressions with covaraites)
+  * The weights can be negative, and suffer from "weight reversal" (similar to the issue discussed in @sloczynski-2022 in the context of cross-sectional regressions with covaraites)
   
   * In other words, weights $\alpha$ is a weighted average of $ATT(X)$ where (relative to a baseline of weighting based on the distribution of $X$ for the treated group), the weights put larger weight on $ATT(X)$ for values of the covariates that are *uncommon* for the treated group relative to the untreated group and smaller weight on $ATT(X)$ for values of the covariates that are *common* for the treated group relative to the untreated group
     
-See Caetano and Callaway (2023) for more details
+See @caetano-callaway-2023 for more details
 
 
 
@@ -235,11 +254,11 @@ where $p(x) = \P(D_i=1|X_i=x)$ and $p=\P(D_i=1)$.
 ::: {.fragment}
 
 
-This is the approach suggested in Abadie (2005).  In practice, you need to estimate the propensity score.  The most common choices are probit or logit.
+This is the approach suggested in @abadie-2005.  In practice, you need to estimate the propensity score.  The most common choices are probit or logit.
 
 :::
 
-## Doubly Robust
+## Doubly Robust {#doubly-robust}
 
 Alternatively, you can show
 
@@ -270,13 +289,13 @@ Big advantage:
 ::: {.fragment}
 
 
-- This also provides a connection to estimating $ATT$ under conditional parallel trends using machine learning for $p(X_i)$ and $\E[\Delta Y_i|X_i,D_i=0]$ (see: Chang (2020) and Callaway, Drukker, Liu, and Sant'Anna (2023))
+- This also provides a connection to estimating $ATT$ under conditional parallel trends using machine learning for $p(X_i)$ and $\E[\Delta Y_i|X_i,D_i=0]$ (see: @chang-2020)
 
 :::
 
 ::: {.fragment}
 
-[More Details](Relaxing-Parallel-Trends.html#/understanding-double-robustness)
+[More Details](#understanding-double-robustness)
 
 :::
 
@@ -352,7 +371,7 @@ twfe_x <- fixest::feols(lemp ~ post | id + region^year,
 modelsummary(twfe_x, gof_omit=".*")
 ```
 
-Relative to previous results, this is much smaller and statistically insignificant and is similar to the result in Dube et al. (2010).
+Relative to previous results, this is much smaller and statistically insignificant and is similar to the result in @dube-lester-reich-2010.
 
 
 
@@ -551,6 +570,16 @@ cs_x_dyn <- aggte(cs_x, type="dynamic")
 ggdid(cs_x_dyn)
 ```
 
+## Side Results
+
+Show some other things that you can do that may be relevant in applications (though not related to including covariates)
+
+1. Change the type of base period - "varying" vs. "universal"
+
+2. Change the comparison group - consider larger comparison groups such as not-yet-treated
+
+3. Allow for anticipation
+
 ## Change base period
 
 ```{r eval=FALSE}
@@ -688,9 +717,129 @@ cs_x_dyn <- aggte(cs_x, type="dynamic")
 ggdid(cs_x_dyn)
 ```
 
-# Covariates Affected by the Treatment {visibility="uncounted"}
+## Covariates Affected by the Treatment {#covariates-affected-by-the-treatment}
 
-## Motivation
+In some applications, we may want to control for covariates that themselves could be affected by the treatment
+
+* Classical examples in labor economics: A person's industry, occupation, or union status
+
+* These are often referred to as ["bad controls"]{.alert}
+
+You can see a [tension]{.alert} here:
+
+* We would like to compare units who, absent being treated, would have had the same (say) union status
+
+* But union status could be affected by the treatment
+
+Most common practice is to just completely drop these covariates from the analysis, but there are alternatives &nbsp; &nbsp; [[More Details](#bad-controls-details)]
+
+* Condition on pre-treatment value of bad control 
+
+* Treat bad control as an outcome (i.e., use some identification strategy), then feed this into the main analysis as a covariate
+
+
+
+# Part 2: Dealing with Violations of Parallel Trends {visibility="uncounted"}
+
+## What about violations of parallel trends?
+
+Parallel trends assumptions don't automatically hold in applications with repeated observations over time (we will discuss this in Session 4 in more detail)
+
+* The most common "response" is pre-testing...checking if parallel trends holds in pre-treatment periods
+
+DID + pre-tests are a very powerful/useful approach to "validating" the parallel trends assumption.  But they are less than a full test of parallel trends.
+
+* Just because parallel trends holds in pre-treatment periods doesn't mean it holds in post-treatment periods
+
+* Pre-tests can suffer from low power (@roth-2022)
+
+## What about our case?
+
+```{r echo=FALSE}
+attgt <- did::att_gt(yname="lemp",
+                     idname="id",
+                     gname="G",
+                     tname="year",
+                     data=data2,
+                     control_group="nevertreated",
+                     base_period="universal")
+```
+
+```{r echo=FALSE}
+ggdid(aggte(attgt,type="dynamic",cband=FALSE))
+```
+
+---
+
+
+
+## Partial Identification / Sensitivity Analysis
+
+References: @manski-pepper-2018, @rambachan-roth-2023
+
+Two versions of sensitivity analysis in RR:
+
+1. Violations of parallel trends are "not too different" in post-treatment periods from the violations in pre-treatment periods
+    * Allow for violations of parallel trends up to $\bar{M}$ times as large as were observed in any pre-treatment period.
+    * And we'll vary $\bar{M}$.
+    
+2. Violations of parallel trends evolve smoothly 
+    * Allow for linear trend up to $M$ times as large as linear trend difference in pre-treatment periods.
+    * We'll vary $M$
+    
+Next slides: show these results in minimum wage application for the "on impact" effect of the treatment
+
+## What about violations of parallel trends?
+
+```{r, echo=FALSE, cache=TRUE, fig.align="center", fig.width=14, fig.height=8, message=FALSE, warning=FALSE}
+# devtools::install_github("asheshrambachan/HonestDiD")
+library(HonestDiD)
+source("honest_did.R")
+cs_es <- aggte(attgt, type="dynamic")
+hd_cs <- honest_did(es=cs_es, 
+                    e=0,
+                    type="relative_magnitude")
+createSensitivityPlot_relativeMagnitudes(hd_cs$robust_ci,
+                                         hd_cs$orig_ci)
+```
+
+## What about violations of parallel trends?
+
+```{r, echo=FALSE, cache=TRUE, fig.align="center", fig.width=14, fig.height=8, message=FALSE, warning=FALSE}
+hd_cs <- honest_did(es=cs_es, 
+                    e=0,
+                    type="smoothness")
+createSensitivityPlot(hd_cs$robust_ci,
+                      hd_cs$orig_ci)
+```
+
+
+# Appendix {visibility="uncounted"}
+
+## Understanding Double Robustness {#understanding-double-robustness visibility="uncounted"}
+
+To understand double robustness, we can rewrite the expression for $ATT$ as
+\begin{align*}
+  ATT = \E\left[ \frac{D_i}{p} \Big(\Delta Y_i - m_0(X_i)\Big) \right] - \E\left[ \frac{p(X_i)(1-D_i)}{(1-p(X_i))p} \Big(\Delta Y_i - m_0(X_i)\Big)\right]
+\end{align*}
+
+The first term is exactly the same as what comes from regression adjustment
+
+* If we correctly specify a model for $m_0(X_i)$, it will be equal to $ATT$.
+
+* If $m_0(X_i)$ not correctly specified, then, by itself, this term will be biased for $ATT$
+
+The second term can be thought of as a de-biasing term
+
+* If $m_0(X_i)$ is correctly specified, it is equal to 0
+
+* If $p(X_i)$ is correctly specified, it reduces to $\E[\Delta Y_{i,t}(0) | D_i=1] - \E[m_0(X_i)|D_i=1]$ which both delivers counterfactual untreated potential outcomes and removes the (possibly misspecified) second term from the first equation
+
+[Back](#doubly-robust)
+
+# Covariates Affected by the Treatment {#bad-controls-details visibility="uncounted"}
+
+## Motivation {visibility="uncounted"}
 
 So far, our discussion has been for the case where the time-varying covariates [evolve exogenously]{.alert}.
 
@@ -705,7 +854,7 @@ The traditional approach in empirical work is to completely drop covariates that
 
 * Not clear if this is the right idea though...
 
-## Additional Notation
+## Additional Notation {visibility="uncounted"}
 
 To wrap our heads around this, let's go back to the case with two time periods.  
 
@@ -724,7 +873,7 @@ $$\E[\Delta Y_i(0) | X_{i,t=2}(0), X_{i,t=1}(0), Z_i, D_i=1] = \E[\Delta Y_i(0) 
 
 <br>
 
-## Option 1: Ignore
+## Option 1: Ignore {visibility="uncounted"}
 
 One idea is to just ignore that the covariates may have been affected by the treatment:
 
@@ -745,7 +894,7 @@ The limitations of this approach are well known (even discussed in MHE), and thi
 
 [Job Displacement Example:]{.alert-blue} You would compare paths of outcomes for workers who left union [because they were displaced]{.alert} to paths of outcomes for non-displaced workers who also left union (e.g., [because of better non-unionized job opportunity]{.alert})
 
-## Option 2: Drop
+## Option 2: Drop {visibility="uncounted"}
 
 It is more common in empirical work to drop $X_{i,t}(0)$ entirely from the parallel trends assumption
 
@@ -766,7 +915,7 @@ In my view, this is not attractive either though.  If we believe this assumption
 
 [Job Displacement Example:]{.alert-blue} We have now just assumed that path of earnings (absent job displacement) doesn't depend on union status
 
-## Option 3: Tweak
+## Option 3: Tweak {visibility="uncounted"}
 
 Perhaps a better alternative identifying assumption is the following one
 
@@ -803,7 +952,7 @@ $$\E[\Delta Y_i(0) | X_{i,t=1}(0), Z_i, D_i=1] = \E[\Delta Y_i(0) |  X_{i,t=1}(0
 
 :::
 
-## Option 4: Extra Assumptions
+## Option 4: Extra Assumptions {visibility="uncounted"}
 
 Going back to the original conditional parallel trends assumption (that include both $X_{i,t=2}(0)$ and $X_{i,t=1}(0)$)...Using the same sort of arguments as for regression adjustment earlier, it follows that
 
@@ -815,7 +964,7 @@ The second term is the tricky one.  Notice that:
 
 * But the outside expectation is infeasible $\implies$ we are stuck (Option 4a)
 
-## Option 4: Dealing with $X_{i,t=2}(0)$
+## Option 4: Dealing with $X_{i,t=2}(0)$ {visibility="uncounted"}
 
 ::: {.callout-note}
 
@@ -837,35 +986,19 @@ $$ATT = \E[\Delta Y_i | D_i=1] - \E\left[ \E[\Delta Y_i | X_{i,t=1}, Z_i, D_i=0]
 
 This is the same expression as in Option 3
 
-## Option 4: Additional Discussion
+## Option 4: Additional Discussion {visibility="uncounted"}
 
 In some cases, it may make sense to condition on other additional variables (e.g., the lagged outcome $Y_{t=1}$) in the covariate unconfoundedness assumption.  In this case, it is still possible to identify $ATT$, but it is more complicated
 
 It could also be possible to use alternative identifying assumptions besides covariate unconfoundedness &mdash; at a high-level, we somehow need to recover the distribution of $X_{i,t=2}(0)$
 
-* e.g., Brown, Butts, and Westerlund (2023)
+* e.g., @brown-butts-westerlund-2023
 
-See Caetano et al. (2023) for more details about bad controls.
+See @caetano-callaway-payne-rodrigues-2023 for more details about bad controls.
 
-# Appendix {visibility="uncounted"}
+[[Back](#covariates-affected-by-the-treatment)]
 
-## Understanding Double Robustness {visibility="uncounted"}
+# References {visibility="uncounted"}
 
-To understand double robustness, we can rewrite the expression for $ATT$ as
-\begin{align*}
-  ATT = \E\left[ \frac{D_i}{p} \Big(\Delta Y_i - m_0(X_i)\Big) \right] - \E\left[ \frac{p(X_i)(1-D_i)}{(1-p(X_i))p} \Big(\Delta Y_i - m_0(X_i)\Big)\right]
-\end{align*}
-
-The first term is exactly the same as what comes from regression adjustment
-
-* If we correctly specify a model for $m_0(X_i)$, it will be equal to $ATT$.
-
-* If $m_0(X_i)$ not correctly specified, then, by itself, this term will be biased for $ATT$
-
-The second term can be thought of as a de-biasing term
-
-* If $m_0(X_i)$ is correctly specified, it is equal to 0
-
-* If $p(X_i)$ is correctly specified, it reduces to $\E[\Delta Y_{i,t}(0) | D_i=1] - \E[m_0(X_i)|D_i=1]$ which both delivers counterfactual untreated potential outcomes and removes the (possibly misspecified) second term from the first equation
-
-[Back](Relaxing-Parallel-Trends.html#/doubly-robust)
+::: {#refs}
+:::

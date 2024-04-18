@@ -9,6 +9,7 @@ author:
 knitr:
   opts_chunk:
     echo: true
+bibliography: refs.bib
 ---
 
 ## Introduction
@@ -61,6 +62,8 @@ A couple of things to notice as we go along:
 
 :::
 
+# Part 1: DID with a Continuous Treatment {visibility="uncounted"}
+
 ## Continuous Treatment Notation
 
 Potential outcomes notation
@@ -97,18 +100,23 @@ $$ACRT(d|d) := \frac{\partial ATT(l|d)}{\partial l} \Big|_{l=d}$$
   
 * Interpretation: $ACRT(d|d)$ is the causal effect of a marginal increase in dose *local to units that actually experienced dose $d$*
 
-::: {.fragment}
+## Aggregated Parameters
 
-We can view $ACRT(d|d)$ as the "building block" here.  An aggregated version of it (into a single number) is
+Notice that $ATT(d|d)$ and $ACRT(d|d)$ are functional parameters
+
+* This is different from $\beta^{twfe}$ (from the TWFE regression of $Y_{i,t}$ on $D_{i,t}$)
+
+We can view $ATT(d|d)$ and $ACRT(d|d)$ as the "building blocks" for a more aggregated parameter.  Aggregated versions of these (into a single number) are
 \begin{align*}
-  ACRT^o := \E[ACRT(D|D)|D>0]
+  ATT^o := \E[ATT(D|D)|D>0] \qquad \qquad ACRT^o := \E[ACRT(D|D)|D>0]
 \end{align*}
+
+* $ATT^o$ averages $ATT(d|d)$ over the population distribution of the dose
 
 * $ACRT^o$ averages $ACRT(d|d)$ over the population distribution of the dose
 
-* Like $ATT^o$ for staggered treatment adoption, $ACRT^o$ is the natural target parameter for the TWFE regression in this case
+* $ACRT^o$ is the natural target parameter for the TWFE regression in this case
 
-:::
 
 
 ## Identification
@@ -348,13 +356,13 @@ step_by_step_eq(eqlist=eqlist,
 
 ## Additional Comments
 
-[Can you relax strong parallel trends?](More-Complicated-Treatment-Regimes.html#/can-you-relax-strong-parallel-trends)
+[Can you relax strong parallel trends?](#can-you-relax-strong-parallel-trends)
 
-[Positive side-comment: No untreated units](More-Complicated-Treatment-Regimes.html#/positive-side-comments-no-untreated-units)
+[Positive side-comment: No untreated units](#no-untreated-units)
 
-[Positive side-comment: Binarizing the Treatment](More-Complicated-Treatment-Regimes.html#/positive-side-comments-alternative-approaches)
+[Positive side-comment: Binarizing the Treatment](#alternative-approaches)
 
-[Negative side-comment: Pre-testing](More-Complicated-Treatment-Regimes.html#/negative-side-comment-pre-testing)
+[Negative side-comment: Pre-testing](#pre-testing)
 
 
 ## TWFE Regressions in this Context
@@ -398,7 +406,7 @@ Other issues can arise in more complicated cases
 
 
 
-## Summarizing
+## Summarizing {#summarizing}
 
 * It is straightforward/familiar to identify ATT-type parameters with a multi-valued or continuous dose
 
@@ -417,13 +425,13 @@ Other issues can arise in more complicated cases
 
 ::: {.fragment}
 
-[[Empirical example about Medicare policy and capital/labor ratios](More-Complicated-Treatment-Regimes.html#/empirical-application)]
+[[Empirical example about Medicare policy and capital/labor ratios](#empirical-application)]
 
 :::
 
-# Example 2: Units can move in and out of the treatment {visibility="uncounted"}
+# Part 2: Units can move in and out of the treatment {visibility="uncounted"}
 
-## Example 2: Units can move in and out of the treatment
+## Units can move in and out of the treatment
 
 "Scarring" vs. Moving in and out of treatment
 
@@ -447,7 +455,7 @@ We can make a lot of progress by redefining our notion of a "group"
 
 :::
 
-## Example 2: Units can move in and out of the treatment 
+## Units can move in and out of the treatment 
 
 <span class="alert">A little more notation...</span>
 
@@ -464,7 +472,7 @@ In this case, we'll define groups by their treatment histories $\mathbf{d}_t$.  
 
 :::
 
-## Example 2: Units can move in and out of the treatment 
+## Units can move in and out of the treatment 
 
 ::: {.callout-note}
 
@@ -492,7 +500,7 @@ This argument is straightforward and analogous to what we have done before.  <sp
 
 :::
 
-## Example 2: Units can move in and out of the treatment 
+## Units can move in and out of the treatment 
 
 There are a number of additional complications that arise here.
 
@@ -506,13 +514,13 @@ There are a number of additional complications that arise here.
 
 2. The previous point provides an additional reason to try to aggregate the group-time average treatment effects.  However, this is also not so straightforward.  
 
-   * This is an area of active research (e.g., de Chaisemartin and d'Haultfoeuille (2023) and Yanagi (2023))
+   * This is an area of active research (e.g., @chaisemartin-dhaultfoeuille-2023a and @yanagi-2022)
    
    * Some ideas below...but the literature has not converged here yet
    
 :::
 
-## Example 2: Units can move in and out of the treatment 
+## Units can move in and out of the treatment 
 
 Probably the simplest approach is to just make groups on the basis of the first period when a unit experiences the treatment
 
@@ -520,7 +528,7 @@ Probably the simplest approach is to just make groups on the basis of the first 
 
 * Lots of papers (e.g., job displacement, hospitalization) have used this idea
 
-* Formally, it amounts to averaging over all subsequent treatments decisions (de Chaisemartin and d'Haultfoeuille (2023))
+* Formally, it amounts to averaging over all subsequent treatments decisions (@chaisemartin-dhaultfoeuille-2023a)
 
 
 ::: {.fragment}
@@ -529,7 +537,7 @@ But there are other ideas too.  Suppose that you were interested in the average 
 
 :::
 
-## Example 2: Units can move in and out of the treatment 
+## Units can move in and out of the treatment 
 
 Define $\sigma_t(\mathbf{d}_t) := \displaystyle \sum_{s=1}^t d_s$ 
 
@@ -565,7 +573,7 @@ Averaging like this reduces the number of groups, and makes the estimation probl
 
 :::
 
-## Example 2: Units can move in and out of the treatment
+## Units can move in and out of the treatment
 
 Even though $ATT^{sum}(\sigma,t)$ (possibly substantially) reduces the dimensionality of the underlying group-time average treatment effect parameters, we might want to reduce more.
 
@@ -575,7 +583,7 @@ This is tricky though because the composition of the effective groups changes ov
 
 :::
 
-## Example 2: Units can move in and out of the treatment
+## Units can move in and out of the treatment
 
 An alternative idea is to just report treatment effect parameters in the last period: $ATT^{sum}(\sigma,T)$ as a function of $\sigma$.  
 
@@ -607,7 +615,7 @@ But it seems within the spirit of DID to assume parallel trends for *staying* at
 
 * Then we can recover group-time average treatment effects for switchers relative to stayers
 
-* See de Chaisemartin et al. (2022) and de Chaisemartin and d'Haultfoeuille (2023) for approaches along these lines
+* See @chaisemartin-dhaultfoeuille-pasquier-vazquez-2022 and @chaisemartin-dhaultfoeuille-2023a for approaches along these lines
 
 :::
 
@@ -656,7 +664,7 @@ ggplot(plot_df, aes(x=year, y=state_mw, color=state_name)) +
   theme_bw()
 ```
 
-## Ideas
+## Ideas {#ideas}
 
 There is variation in the amount of the minimum wage across states and time periods
 
@@ -667,7 +675,7 @@ There is variation in the amount of the minimum wage across states and time peri
 * $ATT$'s per dollar by state and time get us essentially back to the staggered treatment adoption setting
   * we can report event studies (per dollar) and an overall $ATT$ (per dollar)
 
-[[Mathematical Details](More-Complicated-Treatment-Regimes.html#/minimum-wage-mathematical-details)]
+[[Mathematical Details](#minimum-wage-mathematical-details)]
 
 ## ATT by State and Time
 
@@ -743,7 +751,7 @@ My goal in this section is to provide at least a recipe for dealing with complic
 
 # Appendix {visibility="uncounted"}
 
-## Can you relax strong parallel trends? {visibility="uncounted"}
+## Can you relax strong parallel trends? {#can-you-relax-strong-parallel-trends visibility="uncounted"}
 
 [Some ideas:]{.alert-blue}
 
@@ -755,9 +763,9 @@ My goal in this section is to provide at least a recipe for dealing with complic
 
   * For length of school closure, strong parallel trends probably more plausible conditional on being a rural county in the Southeast or conditional on being a college town in the Midwest.
   
-[[Back](More-Complicated-Treatment-Regimes.html#/additional-comments)]
+[[Back](#additional-comments)]
 
-## Positive Side-Comments: No untreated units {visibility="uncounted"}
+## Positive Side-Comments: No untreated units {#no-untreated-units visibility="uncounted"}
 
 It's possible to do some versions of DID with a continuous treatment without having access to a fully untreated group.
 
@@ -769,9 +777,9 @@ It's possible to do some versions of DID with a continuous treatment without hav
   
 * Still face issues related to selection bias / strong parallel trends though
 
-[[Back](More-Complicated-Treatment-Regimes.html#/additional-comments)]
+[[Back](#additional-comments)]
 
-## Positive Side-Comments: Alternative approaches {visibility="uncounted"}
+## Positive Side-Comments: Alternative approaches {#alternative-approaches visibility="uncounted"}
 
 Strategies like binarizing the treatment can still work (though be careful!)
 
@@ -779,19 +787,19 @@ Strategies like binarizing the treatment can still work (though be careful!)
   
 * On the other hand, if you classify units as being "high" treated, "low" treated, or untreated &mdash; our arguments imply that selection bias terms can come up when comparing effects for "high" to "low"
 
-[[Back](More-Complicated-Treatment-Regimes.html#/additional-comments)]
+[[Back](#additional-comments)]
 
-## Negative Side-Comment: Pre-testing {visibility="uncounted"}
+## Negative Side-Comment: Pre-testing {#pre-testing visibility="uncounted"}
 
 That the expressions for $ATE(d)$ and $ATT(d|d)$ are exactly the same also means that we cannot use pre-treatment periods to try to distinguish between "standard" and "strong" parallel trends. 
 In particular, the relevant information that we have for testing each one is the same
 
 * In effect, the only testable implication of strong parallel trends in pre-treatment periods is standard parallel trends.
 
-[[Back](More-Complicated-Treatment-Regimes.html#/additional-comments)]
+[[Back](#additional-comments)]
 
 
-## Empirical Application {visibility="uncounted"}
+## Empirical Application {#empirical-application visibility="uncounted"}
 
 This is a simplified version of Acemoglu and Finkelstein (2008)
 
@@ -830,7 +838,7 @@ Dose is "exposure" to the policy
 <center> <img src="cdd_af_scatter.png" width=70% /> </center>
 
 
-## ATE Plot {visibility="uncounted"}
+## ATT/ATE Plot {visibility="uncounted"}
 
 <center> <img src="cdd_new_estimator_att.JPG" width=90% /> </center>
 
@@ -841,7 +849,11 @@ Dose is "exposure" to the policy
 
 ## Results {visibility="uncounted"}
 
-<center> <img src="table_est_results.png" width=70% /> </center>
+<center> <img src="table_est_blank.png" width=70% /> </center> 
+
+## Results {visibility="uncounted"}
+
+<center> <img src="table_est_results.png" width=70% /> </center> 
 
 
 ## Density weights vs. TWFE weights {visibility="uncounted"}
@@ -853,7 +865,7 @@ Dose is "exposure" to the policy
 
 <center> <img src="weights_twfe2.png" width=100% /> </center>
 
-[[Back](More-Complicated-Treatment-Regimes.html#/summarizing)]
+[[Back](#summarizing)]
 
 
 ## DID using Stayers and Switchers {visibility="uncounted"}
@@ -892,7 +904,7 @@ Given this sort of assumption, there may be a huge number of $ATT^{switchers}(\m
 
 :::
 
-## Minimum Wage Mathematical Details {visibility="uncounted"}
+## Minimum Wage Mathematical Details {#minimum-wage-mathematical-details visibility="uncounted"}
 
 $\mu(\mathbf{d}_t) := d_t$ &mdash; "how much" treated in this period
 
@@ -914,4 +926,9 @@ Further consider
 
 $$ATT^{per}(\rho, t) = \sum_{\mu \in M_t} ATT^{per}(\mu, \varrho, t) \P(\mu(\mathbf{d}_t))$$
 
-[[Back](More-Complicated-Treatment-Regimes.html#/ideas)]
+[[Back](#ideas)]
+
+# References {visibility="uncounted"}
+
+::: {#refs}
+:::
