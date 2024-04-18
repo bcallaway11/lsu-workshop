@@ -20,7 +20,7 @@ These are the materials for the difference-in-differences workshop at LSU.
 
 Applying DID techniques from parts 1 and 2 to job displacement data.
 
-[[Problems](Exercises/Exercise-1/exercise1.html)]
+[[Problems](Exercises/Exercise-1/)]
 
 [[R Data](Exercises/Exercise-1/job_displacement_data.RData)] &nbsp; &nbsp; [[Stata dta](Exercises/Exercise-1/job_displacement_data.dta)]
 
