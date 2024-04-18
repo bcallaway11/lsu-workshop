@@ -453,24 +453,17 @@ We can make a lot of progress by redefining our notion of a "group"
 
 * Potential outcomes $Y_{i,t}(\mathbf{d}_t)$ where $\mathbf{d}_t$ is some treatment history up to period $t$ (this notation imposes "no anticipation" &mdash; potential outcomes do not depend on future treatments).  Observed outcomes: $Y_{i,t}(\mathbf{D}_{i,t})$
 
+* $\mathbf{0}_t$ denotes not participating in the treatment in any period up to period $t$
+
 :::
 
 ## Units can move in and out of the treatment 
 
-<span class="alert">A little more notation...</span>
-
-* $\mathcal{D}_t \subseteq \{0,1\}^t$ is the set of all possible treatment histories in period $t$.  As earlier, we will exclude units that are treated in the first period, (I'll briefly come back to this later)
-
-* $\mathbf{0}_t$ denotes not participating in the treatment in any period up to period $t$
-
-::: {.fragment}
 
 In this case, we'll define groups by their treatment histories $\mathbf{d}_t$.  Thus, we can consider group-time average treatment effects defined by
 \begin{align*}
   ATT(\mathbf{d}_t, t) := \E[Y_{i,t}(\mathbf{d}_t) - Y_{i,t}(\mathbf{0}_t) | \mathbf{D}_{i,t} = \mathbf{d}_t]
 \end{align*}
-
-:::
 
 ## Units can move in and out of the treatment 
 
@@ -516,13 +509,13 @@ There are a number of additional complications that arise here.
 
    * This is an area of active research (e.g., @chaisemartin-dhaultfoeuille-2023a and @yanagi-2022)
    
-   * Some ideas below...but the literature has not converged here yet
+   * Some ideas below...but the literature has not converged here yet (nor is it clear if it can converge)
    
 :::
 
 ## Units can move in and out of the treatment 
 
-Probably the simplest approach is to just make groups on the basis of the first period when a unit experiences the treatment
+Probably the simplest approach is to just make "timing groups" on the basis of the first period when a unit experiences the treatment
 
 * We have (kind of) been doing this in our minimum wage application
 
@@ -530,12 +523,47 @@ Probably the simplest approach is to just make groups on the basis of the first 
 
 * Formally, it amounts to averaging over all subsequent treatments decisions (@chaisemartin-dhaultfoeuille-2023a)
 
+In math: Define $M_i := \min\{t : D_{i,t} = 1\}$, then we can consider the (timing-group)-time average treatment effects: 
+$$ATT(m,t) := \E[Y_{i,t}(\mathbf{D}_{i,t}) - Y_{i,t}(\mathbf{0}_t) | M_i = m]$$
 
-::: {.fragment}
+* If the treatment were staggered, these would be exactly the group-time average treatment effects discussed earlier
 
-But there are other ideas too.  Suppose that you were interested in the average treatment effect of experiencing some cumulative number of treatments over time (e.g., how many years someone was in a union).
+* Can show that these are averages of $ATT(\mathbf{d}_t, t)$ across different treatment histories that have the same $M_i$.
 
-:::
+## Units can move in and out of the treatment
+
+But there are other ideas too.  For example, you could target the [average treatment effect across all periods that a unit participated in the treatment]{.alert}
+
+<!--* For units that experienced treatment regime $\mathbf{d}_t$, their treatment effect is
+$$\tau_{i,t} = Y_{i,t}(\mathbf{d}_t) - Y_{i,t}(\mathbf{0}_t)$$-->
+
+* Define $C_i := \displaystyle \sum_{t=2}^T D_{i,t}$ &mdash; the total number of periods that unit $i$ was treated
+
+* Unit-specific average treatment effect
+$$\bar{\tau}_i = \frac{1}{C_i} \sum_{t=2}^{T} D_{i,t} \big(Y_{i,t}(\mathbf{D}_{i,t}) - Y_{i,t}(\mathbf{0}_t) \big)$$
+  This is the average treatment effect for unit $i$ in all the periods that it was treated
+
+* Overall average treatment effect: 
+$$ATT^o := \E[\bar{\tau}_i | \mathbf{D}_i \neq \mathbf{0}_t]$$
+
+* Can show that this is a different weighted average of $ATT(\mathbf{d}_t, t)$.
+
+This sort of parameter might be interesting in applications where treatment status changes often and treatment effects are short-lived
+
+
+## Units can move in and out of the treatment
+
+Suppose that you were interested in the [average treatment effect of experiencing some cumulative number of treatments over time]{.alert} (e.g., how many years someone was in a union).
+
+* Consider the average treatment effect parameter
+$$ATT^{sum}(\sigma) := \E\Big[Y_{i,T}(\mathbf{D}_i) - Y_{i,T}(\mathbf{0}) \big| C_i=\sigma\Big]$$
+which is the average treatment effect (in the last period) among those units that experienced $\sigma$ total treatments across all years
+
+* As before, you can show that this is a weighted average of $ATT(\mathbf{d}_t, t)$.
+
+* Can report $ATT^{sum}(\sigma)$ for different values of $\sigma$.
+
+<!--
 
 ## Units can move in and out of the treatment 
 
@@ -583,49 +611,27 @@ This is tricky though because the composition of the effective groups changes ov
 
 :::
 
-## Units can move in and out of the treatment
 
 An alternative idea is to just report treatment effect parameters in the last period: $ATT^{sum}(\sigma,T)$ as a function of $\sigma$.  
 
 * This would be something that you could report in a two-dimensional plot
 
-::: {.fragment}
+-->
+
+## Units can move in and out of the treatment {#end-in-and-out}
 
 Unlike the staggered treatment adoption case, where $ATT^{es}(e)$ and $ATT^o$ seem like good default parameters to report, it is not clear to me what (or if there is) a good default choice here.
 
 * However, if I were writing a paper, I would (i) show disaggregated results, (ii) argue for some particular aggregated parameter and choose weights on the disaggregated parameters that target this parameter
 
-:::
+. . .
 
-::: {.fragment}
 
-Another caution is that (I presume) the issues about interpreting $ATT$-type parameters across different amounts of the treatment (here across $\sigma$) will introduce selection bias terms except under additional assumptions
+Another caution is that (I presume) the issues about interpreting $ATT$-type parameters across different amounts of the treatment (e.g., across $\sigma$) will introduce selection bias terms except under additional assumptions
 
 * e.g., saying that, on average participating in a union for 10 years increased earnings by some amount and participating in a union for for 5 years increased by another amount is one thing; causally attributing the difference to "longer union participation" (probably) takes more assumptions
 
-:::
-
-## Extensions
-
-Notice that above, we only invoked parallel trends with respect to untreated potential outcomes. 
-
-::: {.fragment}
-
-But it seems within the spirit of DID to assume parallel trends for *staying* at the same treatment over time
-
-* Then we can recover group-time average treatment effects for switchers relative to stayers
-
-* See @chaisemartin-dhaultfoeuille-pasquier-vazquez-2022 and @chaisemartin-dhaultfoeuille-2023a for approaches along these lines
-
-:::
-
-::: {.fragment}
-
-This results in *many* more disaggregated treatment effect parameters
-
-[[Details](#stayers)]
-
-:::
+[[Possible additional assumptions](#additional-assumptions)]
 
 # Minimum Wage Example {visibility="uncounted"}
 
@@ -633,19 +639,13 @@ This results in *many* more disaggregated treatment effect parameters
 
 If we engage seriously with differing minimum wages across states, this is related to (but not exactly the same) as either or the two cases considered previously.
 
+Unique features of minimum wage application:
+
 * Multiple values of the treatment
 
 * Amount can change over time
 
 * But (in our sample) treatment does not ever turn back off
-
-## Group-time average treatment effects
-
-It is straightforward for us to get $ATT(\mathbf{d}_t, t)$.  This amounts to just estimating treatment effects for each treated state in our data in each time period.
-
-## How to Aggregate
-
-It is less clear how to aggregate them.  I will propose an idea, but you could certainly come up with something else.
 
 ## Minimum Wages by State
 
@@ -664,18 +664,10 @@ ggplot(plot_df, aes(x=year, y=state_mw, color=state_name)) +
   theme_bw()
 ```
 
-## Ideas {#ideas}
+## Group-time average treatment effects
 
-There is variation in the amount of the minimum wage across states and time periods
+It is straightforward for us to get $ATT(\mathbf{d}_t, t)$.  This amounts to just estimating treatment effects for each treated state in our data in each time period.
 
-* Idea: collapse this by reporting $ATT$'s per dollar increase in the minimum wage in the current period for a particular state
-  * This gives a decrease in employment per dollar in each time period
-  * This is "well defined" but our results could easily be misinterpreted if, say, results were mainly driven dynamics
-  
-* $ATT$'s per dollar by state and time get us essentially back to the staggered treatment adoption setting
-  * we can report event studies (per dollar) and an overall $ATT$ (per dollar)
-
-[[Mathematical Details](#minimum-wage-mathematical-details)]
 
 ## ATT by State and Time
 
@@ -689,6 +681,60 @@ ggplot(post_res, aes(x=year, y=attst, color=state)) +
   theme_bw()
 
 ```
+
+## Aggregating Group-Time Average Treatment Effects
+
+The example here is small enough that perhaps we could just show disaggregated results, but this would not be true for most applications.
+
+[Goals:]{.alert}
+
+* Come up with a version of an event study (that acknowledges different treatment amounts)
+
+* Come up with an overall average treatment effect parameter (also acknowledging different treatment amounts)
+
+
+## How to Aggregate
+
+It is less clear how to aggregate them.  I will propose an idea, but you could certainly come up with something else.
+
+. . .
+
+For counties that experienced treatment regime $\mathbf{d}_t$, consider the scaled treatment effect
+$$\frac{Y_{i,t}(\mathbf{d}_t) - Y_{i,t}(\mathbf{0}_t)}{d_t}$$
+which is the effect of the minimum wage scaled by the minimum wage in the current period
+
+* $d_t = \textrm{state min wage} - \textrm{federal min wage}$
+
+. . .
+
+Define $M_i$ as the first time a state raised it's minimum wage
+
+. . .
+
+Consider the following parameter
+$$ATT^{scaled}(m,t) := \E\left[ \frac{Y_{i,t}(\mathbf{D}_{i,t}) - Y_{i,t}(\mathbf{0}_t)}{D_{i,t}} \Big| M_i = m \right]$$
+which is the average per dollar effect of the minimum wage increase on employment in period $t$ across those which first raised the minimum wage in period $m$
+
+* Can show that this is an average of $\frac{ATT(\mathbf{d}_t, t)}{d_t}$ across different treatment histories that have $M_i=m$.
+
+* we can average across $m,t$ to get an event study or an overall average treatment effect &mdash; interpret both as per dollar effect of minimum wage increases on employment
+
+<!--
+
+## Ideas {#ideas}
+
+There is variation in the amount of the minimum wage across states and time periods
+
+* Idea: collapse this by reporting $ATT$'s per dollar increase in the minimum wage in the current period for a particular state
+  * This gives a decrease in employment per dollar in each time period
+  * This is "well defined" but our results could easily be misinterpreted if, say, results were mainly driven dynamics
+  
+* $ATT$'s per dollar by state and time get us essentially back to the staggered treatment adoption setting
+  * we can report event studies (per dollar) and an overall $ATT$ (per dollar)
+
+[[Mathematical Details](#minimum-wage-mathematical-details)]
+
+-->
 
 ## ATT per Dollar by State and Time
 
@@ -746,7 +792,7 @@ My goal in this section is to provide at least a recipe for dealing with complic
 
 * [Step 1:]{.alert} Target disaggregated parameters
 
-* [Step 2:]{.alert} If desired, choose aggregated target parameter suitable to the application, combine underlying disaggregateed parameters directly to recover this parameter
+* [Step 2:]{.alert} If desired, choose aggregated target parameter suitable to the application, combine underlying disaggregated parameters directly to recover this parameter
 
 
 # Appendix {visibility="uncounted"}
@@ -867,6 +913,46 @@ Dose is "exposure" to the policy
 
 [[Back](#summarizing)]
 
+
+## Possible Additional Assumptions {#additional-assumptions visibility="uncounted"}
+
+There are other additional assumptions that could be attractive in applications like this
+
+1. Notice that above, we only invoked parallel trends with respect to untreated potential outcomes. 
+
+    But it seems within the spirit of DID to assume [parallel trends for staying at the same treatment over time]{.alert}
+    * Then we can recover group-time average treatment effects for switchers relative to stayers
+    * See @chaisemartin-dhaultfoeuille-pasquier-vazquez-2022 and @chaisemartin-dhaultfoeuille-2023a for approaches along these lines
+
+    This approach could potentially greatly increase the amount of information that we are able to use and results in *many* more disaggregated treatment effect parameters
+
+    <!-- [[More Details](#stayers)] -->
+
+## Possible Additional Assumptions {visibility="uncounted"}
+
+There are other additional assumptions that could be attractive in applications like this
+
+2. Assumptions that [limit the "memory" of potential outcomes]{.alert} could be attractive in some applications
+
+    * e.g., $Y_{i,t}(\mathbf{d}_t) = Y_{i,t}(\mathbf{d}_{t-5:t})$ &mdash; potential outcomes only depend on treatments in the last 5 periods 
+    
+    * this allows pooling across treatment histories
+    
+    * could increase the size of the comparison group
+
+## Possible Additional Assumptions {visibility="uncounted"}
+
+There are other additional assumptions that could be attractive in applications like this
+
+3. Assumptions that [limit treatment effect dynamics]{.alert} could be attractive in some applications
+
+    For example, if a unit has been treated for 5 years in a row, then their trend in outcomes over time goes back to being the same as the trend in untreated potential outcomes (though the level could still be affected by the treatment)
+    
+    I think this is what event studies that bin the endpoints have in mind
+    
+    This allows those units with a "steady" treatment to eventually re-enter the comparison group (and this is often a testable assumption)
+
+[[Back](#end-in-and-out)]
 
 ## DID using Stayers and Switchers {visibility="uncounted"}
 
