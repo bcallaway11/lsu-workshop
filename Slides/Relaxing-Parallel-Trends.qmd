@@ -222,7 +222,7 @@ The most direct way to proceed is by proposing a model for $m_0(X_i)$.
 
 This expression suggests a [regression adjustment]{.alert} estimator.  For example, if we assume that $m_0(X_i) = X_i'\beta_0$, then we have that
 
-$$ATT = \E[\Delta Y_i | D_i=1] - \E[X_i'|D_i=1]\beta_0$$
+$$ATT = \E[\Delta Y_i | D_i=1] - \E[X_i'\beta_0|D_i=1]$$
 
 . . .
 
@@ -230,18 +230,33 @@ and we can estimate the $ATT$ by
 
 * Step 1: Estimate $\beta_0$ using untreated group
 
-* Step 2: Combine this estimate with estimates of $\E[\Delta Y_{i,t} | D_i=1]$ and $\E[X_i'|D_i=1]$ (using treated group) to estimate $ATT$
+* Step 2: Compute predicted values for treated units: $X_i'\hat{\beta}_0$
+
+* Step 3: Compute $\widehat{ATT}$ by taking the difference between the difference between the average change in outcomes for treated units and the average predicted outcomes for treated units
 
 ## Covariate Balancing
 
-Alternatively, if we could choose [balancing weights]{.alert} $\nu_0(X_i)$ such that the distribution of $X_i$ was the same in the untreated group as it is in the treated group after applying the balancing weights, then we would have that (from the second term above)
+An alternative approach is to try to [balance the distribution of covariates]{.alert} between the treated and untreated groups.
+
+Momentarily, suppose that the distribution of $X_i$ was the same for both groups, then
+\begin{align*}
+  \E\Big[ \E[\Delta Y_i(0) | X_i, D_i=0 ] \Big| D_i=1\Big] &= \E\Big[ \E[\Delta Y_i(0) | X_i, D_i=0 ] \Big| D_i=0\Big] \\
+  &= \E[\Delta Y_i(0) | D_i=0]
+\end{align*}
+$\implies$ (even under conditional parallel trends) we can estimate $ATT$ by just directly comparing paths of outcomes for treated and untreated groups.
+
+## Covariate Balancing
+
+In general, we should not expect the distribution of covariates to be the same across groups.
+
+However the idea of covariate balancing is to come up with [balancing weights]{.alert} $\nu_0(X_i)$ such that the distribution of $X_i$ is the same in the untreated group as it is in the treated group after applying the balancing weights.  Then we would have that (from the second term above)
 \begin{align*}
   \E\Big[ \E[\Delta Y_i(0) | X_i, D_i=0 ] \Big| D_i=1\Big] &= \E\Big[ \nu_0(X_i) \E[\Delta Y_i(0) | X_i, D_i=0 ] \Big| D_i=0\Big] \\
   &= \E[\nu_0(X_i) \Delta Y_i(0) | D_i=0]
 \end{align*}
 where the first equality is due to balancing weights and the second by the law of iterated expectations.
 
-::: {.fragment}
+## Propensity Score Re-Weighting
 
 The most common way to re-weight is based on the propensity score, you can show:
 \begin{align*}
@@ -249,20 +264,25 @@ The most common way to re-weight is based on the propensity score, you can show:
 \end{align*}
 where $p(x) = \P(D_i=1|X_i=x)$ and $p=\P(D_i=1)$.  
 
-:::
+* This is the approach suggested in @abadie-2005.  In practice, you need to estimate the propensity score.  The most common choices are probit or logit.
 
-::: {.fragment}
+. . . 
 
+For estimation:
 
-This is the approach suggested in @abadie-2005.  In practice, you need to estimate the propensity score.  The most common choices are probit or logit.
+* Step 1: Estimate the propensity score (typically logit or probit) 
 
-:::
+* Step 2: Compute the weights, using the estimated propensity score
+
+* Step 3: Compute $\widehat{ATT}$ by taking the difference between the average change in outcomes for treated units and the [weighted average]{.alert} of the change in outcomes over time for the untreated group 
 
 ## Doubly Robust {#doubly-robust}
 
 Alternatively, you can show
 
-$$ATT=\E\left[ \left( \frac{D_i}{p} - \frac{p(X_i)(1-D_i)}{(1-p(X_i))p} \right)(\Delta Y_{i,t} - \E[\Delta Y_{i,t} | X_i, D_i=0]) \right]$$
+<!--$$ATT=\E\left[ \left( \frac{D_i}{p} - \frac{p(X_i)(1-D_i)}{(1-p(X_i))p} \right)(\Delta Y_{i,t} - \E[\Delta Y_{i,t} | X_i, D_i=0]) \right]$$-->
+
+$$ATT = \E\left[  \Delta Y_{i,t} - \E[\Delta Y_{i,t} | X_i, D_i=0] \big| D=1\right] - \E\left[ \frac{p(X_i)(1-p)}{(1-p(X_i))p} \big(\Delta Y_{i,t} - \E[\Delta Y_{i,t} | X_i, D_i=0]\big) \Big| D_i = 0\right]$$
 
 ::: {.fragment}
 
